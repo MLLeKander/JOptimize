@@ -1,5 +1,5 @@
 package nl.rug.joptimize.opt;
 
 public interface Optimizer {
-    public OptParam optimize(SeperableCostFunction ds, OptParam init);
+	public OptParam optimize(SeperableCostFunction ds, OptParam init);
 }

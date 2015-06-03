@@ -1,28 +1,31 @@
 package nl.rug.joptimize.learn.lvq;
 
 import nl.rug.joptimize.learn.Classifier;
-import nl.rug.joptimize.learn.DataExample;
 import nl.rug.joptimize.learn.LabeledDataSet;
+import nl.rug.joptimize.opt.Optimizer;
 
 public class LVQ implements Classifier {
 
-    LVQOptParam params;
+	LVQOptParam params;
+	Optimizer opt;
 
-    public LVQ(LabeledDataSet examples) {
-        this.train(examples);
-    }
+	public LVQ(LabeledDataSet examples, Optimizer opt) {
+		this.opt = opt;
+		this.train(examples);
+	}
 
-    @Override
-    public void train(LabeledDataSet examples) {
-        // TODO Auto-generated method stub
+	@Override
+	public void train(LabeledDataSet examples) {
+		// TODO Write cost function class
+		// TODO Write LVQOptParam initialization
+	}
 
-    }
+	@Override
+	public int classify(double[] data) {
+		assert (params != null);
 
-    @Override
-    public int classify(DataExample e) {
-        // TODO Auto-generated method stub
-        assert (params != null);
-        return 0;
-    }
+		// MIN_VALUE should never be a class label...
+		return params.getClosestProtoLabel(data);
+	}
 
 }
