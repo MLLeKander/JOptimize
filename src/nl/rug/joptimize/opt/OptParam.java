@@ -1,23 +1,27 @@
 package nl.rug.joptimize.opt;
 
-public interface OptParam {
-	public OptParam add(OptParam o);
+public interface OptParam<ParamType extends OptParam<ParamType>> {
+    public ParamType add(ParamType o);
 
-	public OptParam add_s(OptParam o);
+    public ParamType add_s(ParamType o);
 
-	public OptParam sub(OptParam o);
+    public ParamType sub(ParamType o);
 
-	public OptParam sub_s(OptParam o);
+    public ParamType sub_s(ParamType o);
 
-	public OptParam zero();
+    public ParamType zero();
 
-	public OptParam zero_s();
+    public ParamType zero_s();
 
-	public OptParam dotprod(OptParam o);
+    public ParamType dotprod(ParamType o);
 
-	public OptParam dotprod_s(OptParam o);
+    public ParamType dotprod_s(ParamType o);
 
-	public OptParam multiply(double o);
+    public ParamType multiply(double o);
 
-	public OptParam multiply_s(double o);
+    public ParamType multiply_s(double o);
+
+    public ParamType copy();
+
+    public double squaredNorm();
 }

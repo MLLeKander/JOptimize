@@ -2,31 +2,34 @@ package nl.rug.joptimize.opt;
 
 import java.util.Random;
 
-public class SGDOptimizer extends AbstractOptimizer {
-	private double learningRate;
-	private double epsilon;
-	private int tMax;
-	private Random rand = new Random();
+public class SGDOptimizer<ParamType extends OptParam<ParamType>> extends
+        AbstractOptimizer<ParamType> {
+    private double learningRate;
+    private double epsilon;
+    private int tMax;
+    private Random rand = new Random();
 
-	public SGDOptimizer(double learningRate, double epsilon, int tMax) {
-		this.learningRate = learningRate;
-		this.epsilon = epsilon;
-		this.tMax = tMax;
-	}
+    public SGDOptimizer(double learningRate, double epsilon, int tMax) {
+        this.learningRate = learningRate;
+        this.epsilon = epsilon;
+        this.tMax = tMax;
+    }
 
-	public OptParam optimize(SeperableCostFunction ds, OptParam initParams) {
-		OptParam params = initParams;
-		int size = ds.size();
+    public ParamType optimize(SeperableCostFunction<ParamType> cf, ParamType initParams) {
+        ParamType params = initParams.copy();
+        int size = cf.size();
 
-		for (int t = 0; t < tMax && ds.error(params) < epsilon; t++) {
-			OptParam partialGrad = ds.deriv(params, rand.nextInt(size));
-			params.add_s(partialGrad.multiply_s(learningRate));
+        double err = cf.error(params);
+        for (int t = 0; t < tMax && err < epsilon; t++) {
+            for (int i = 0; i < size; i++) {
+                ParamType partialGrad = cf.deriv(params, rand.nextInt(size));
+                params.add_s(partialGrad.multiply_s(learningRate));
 
-			this.notifyExample(partialGrad);
-			if (t % size == 0) {
-				this.notifyEpoch(params);
-			}
-		}
-		return params;
-	}
+                this.notifyExample(partialGrad);
+            }
+            err = cf.error(params);
+            this.notifyEpoch(params, err);
+        }
+        return params;
+    }
 }

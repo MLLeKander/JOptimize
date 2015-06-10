@@ -1,7 +1,7 @@
 package nl.rug.joptimize.learn;
 
 public interface Classifier {
-	public void train(LabeledDataSet testSet);
+    public void train(LabeledDataSet testSet);
 
-	public int classify(double[] e);
+    public int classify(double[] e);
 }

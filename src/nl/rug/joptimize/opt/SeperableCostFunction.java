@@ -1,11 +1,16 @@
 package nl.rug.joptimize.opt;
 
-public interface SeperableCostFunction extends CostFunction {
-	public double error(OptParam params, int exampleNdx);
+public interface SeperableCostFunction<ParamType extends OptParam<ParamType>> extends
+        CostFunction<ParamType> {
+    public double error(ParamType params, int exampleNdx);
 
-	public OptParam deriv(OptParam params, int exampleNdx);
+    public ParamType deriv(ParamType params, int exampleNdx);
 
-	public OptParam hesseDiag(OptParam params, int exampleNdx);
+    public ParamType deriv(ParamType params, int exampleNdx, ParamType out);
 
-	public int size();
+    public ParamType hesseDiag(ParamType params, int exampleNdx);
+
+    public ParamType hesseDiag(ParamType params, int exampleNdx, ParamType out);
+
+    public int size();
 }

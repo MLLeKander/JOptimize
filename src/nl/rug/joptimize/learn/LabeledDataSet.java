@@ -1,40 +1,51 @@
 package nl.rug.joptimize.learn;
 
+import java.util.TreeSet;
+
 public class LabeledDataSet {
-	private double[][] data;
-	private int[] labels;
+    private double[][] data;
+    private int[] labels;
+    private int maxLabel;
 
-	public LabeledDataSet(double[][] data, int[] labels) {
-		this.data = data;
-		this.labels = labels;
-	}
+    public LabeledDataSet(double[][] data, int[] labels) {
+        this.data = data;
+        this.labels = labels;
 
-	/*
-	 * public LabeledDataSet(List<? extends DataExample> examples, List<Integer>
-	 * labels) { this.labels = new int[labels.size()]; int i = 0; for (Integer
-	 * label : labels) { this.labels[i++] = label; }
-	 * 
-	 * this.data = new }
-	 */
+        TreeSet<Integer> set = new TreeSet<>();
+        for (int i : labels) {
+            set.add(i);
+        }
 
-	public int getLabel(int ndx) {
-		return labels[ndx];
-	}
+        this.maxLabel = set.last();
 
-	public double[] getData(int ndx) {
-		return data[ndx];
-	}
+        assert (set.first() == 0);
+        for (int i = maxLabel; i > 0; i--) {
+            assert (set.contains(i));
+        }
+    }
 
-	public double getData(int ndx, int dimension) {
-		return data[ndx][dimension];
-	}
+    public int getLabel(int ndx) {
+        return this.labels[ndx];
+    }
 
-	public int size() {
-		return data.length;
-	}
+    public double[] getData(int ndx) {
+        return this.data[ndx];
+    }
 
-	public int dimensions() {
-		// Assumes data has at least one element.
-		return data[0].length;
-	}
+    public double getData(int ndx, int dimension) {
+        return this.data[ndx][dimension];
+    }
+
+    public int size() {
+        return this.data.length;
+    }
+
+    public int dimensions() {
+        // Assumes data has at least one element.
+        return this.data[0].length;
+    }
+
+    public int classes() {
+        return this.maxLabel+1;
+    }
 }

@@ -1,8 +1,8 @@
 package nl.rug.joptimize.opt;
 
-public interface OptObserver {
-	// TODO
-	public void notifyEpoch(OptParam params);
+public interface OptObserver<ParamType extends OptParam<ParamType>> {
+    // TODO ?
+    public void notifyEpoch(ParamType params, double error);
 
-	public void notifyExample(OptParam params);
+    public void notifyExample(ParamType params);
 }

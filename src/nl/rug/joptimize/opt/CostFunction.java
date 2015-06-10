@@ -1,11 +1,11 @@
 package nl.rug.joptimize.opt;
 
-public interface CostFunction {
+public interface CostFunction<ParamType extends OptParam<ParamType>> {
 
-	public double error(OptParam params);
+    public double error(ParamType params);
 
-	public OptParam deriv(OptParam params);
+    public ParamType deriv(ParamType params);
 
-	public OptParam hesseDiag(OptParam params);
+    public ParamType hesseDiag(ParamType params);
 
 }

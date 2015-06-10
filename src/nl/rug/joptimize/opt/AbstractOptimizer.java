@@ -2,22 +2,23 @@ package nl.rug.joptimize.opt;
 
 import java.util.*;
 
-public abstract class AbstractOptimizer implements Optimizer {
-	protected List<OptObserver> obs = new ArrayList<OptObserver>();
+public abstract class AbstractOptimizer<ParamType extends OptParam<ParamType>> implements
+        Optimizer<ParamType> {
+    protected List<OptObserver<ParamType>> obs = new ArrayList<OptObserver<ParamType>>();
 
-	public void addObs(OptObserver ob) {
-		obs.add(ob);
-	}
+    public void addObs(OptObserver<ParamType> ob) {
+        obs.add(ob);
+    }
 
-	protected void notifyExample(OptParam params) {
-		for (OptObserver ob : obs) {
-			ob.notifyExample(params);
-		}
-	}
+    protected void notifyExample(ParamType params) {
+        for (OptObserver<ParamType> ob : obs) {
+            ob.notifyExample(params);
+        }
+    }
 
-	protected void notifyEpoch(OptParam params) {
-		for (OptObserver ob : obs) {
-			ob.notifyEpoch(params);
-		}
-	}
+    protected void notifyEpoch(ParamType params, double error) {
+        for (OptObserver<ParamType> ob : obs) {
+            ob.notifyEpoch(params, error);
+        }
+    }
 }

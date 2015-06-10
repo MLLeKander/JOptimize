@@ -1,31 +1,30 @@
 package nl.rug.joptimize.opt;
 
-public class BGDOptimizer extends AbstractOptimizer {
-	private double learningRate;
-	private double epsilon;
-	private int tMax;
+public class BGDOptimizer<ParamType extends OptParam<ParamType>> extends
+        AbstractOptimizer<ParamType> {
+    private double learningRate;
+    private double epsilon;
+    private int tMax;
 
-	public BGDOptimizer(double learningRate, double epsilon, int tMax) {
-		this.learningRate = learningRate;
-		this.epsilon = epsilon;
-		this.tMax = tMax;
-	}
+    public BGDOptimizer(double learningRate, double epsilon, int tMax) {
+        this.learningRate = learningRate;
+        this.epsilon = epsilon;
+        this.tMax = tMax;
+    }
 
-	public OptParam optimize(SeperableCostFunction ds, OptParam initParams) {
-		OptParam params = initParams;
-		int size = ds.size();
+    // TODO This doesn't need to be Seperable...
+    public ParamType optimize(SeperableCostFunction<ParamType> cf, ParamType initParams) {
+        ParamType params = initParams.copy();
 
-		for (int t = 0; t < tMax && ds.error(params) < epsilon; t++) {
-			OptParam nextParams = params.zero();
-			for (int i = 0; i < size; i++) {
-				OptParam partialGrad = ds.deriv(params, i);
-				nextParams.add_s(partialGrad);
-				this.notifyExample(partialGrad);
-			}
+        double err = cf.error(params), diff = Double.MAX_VALUE;
+        for (int t = 0; t < tMax && diff >= epsilon; t++) {
+            ParamType grad = cf.deriv(params);
 
-			params.add_s(nextParams.multiply_s(learningRate));
-			this.notifyEpoch(params);
-		}
-		return params;
-	}
+            diff = grad.squaredNorm();
+            params.sub_s(grad.multiply_s(learningRate));
+            err = cf.error(params);
+            this.notifyEpoch(params, err);
+        }
+        return params;
+    }
 }
