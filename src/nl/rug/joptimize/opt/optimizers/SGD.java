@@ -1,15 +1,19 @@
-package nl.rug.joptimize.opt;
+package nl.rug.joptimize.opt.optimizers;
 
 import java.util.Random;
 
-public class SGDOptimizer<ParamType extends OptParam<ParamType>> extends
+import nl.rug.joptimize.opt.AbstractOptimizer;
+import nl.rug.joptimize.opt.OptParam;
+import nl.rug.joptimize.opt.SeperableCostFunction;
+
+public class SGD<ParamType extends OptParam<ParamType>> extends
         AbstractOptimizer<ParamType> {
     private double learningRate;
     private double epsilon;
     private int tMax;
     private Random rand = new Random();
 
-    public SGDOptimizer(double learningRate, double epsilon, int tMax) {
+    public SGD(double learningRate, double epsilon, int tMax) {
         this.learningRate = learningRate;
         this.epsilon = epsilon;
         this.tMax = tMax;

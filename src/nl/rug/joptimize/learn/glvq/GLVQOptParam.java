@@ -9,44 +9,44 @@ import java.util.Collections;
 import nl.rug.joptimize.learn.LabeledDataSet;
 import nl.rug.joptimize.opt.OptParam;
 
-public class GRLVQOptParam implements OptParam<GRLVQOptParam> {
+public class GLVQOptParam implements OptParam<GLVQOptParam> {
     double[][] prototypes;
     int[] labels;
     // TODO Holy shit this is bad.
     static ArrayList<Integer> cMemo = new ArrayList<Integer>();
     static ArrayList<Integer> iMemo = new ArrayList<Integer>();
 
-    public GRLVQOptParam(double[][] prototypes, int[] labels, int dsSize) {
+    public GLVQOptParam(double[][] prototypes, int[] labels, int dsSize) {
         this.prototypes = prototypes;
         this.labels = labels;
         initMemos(dsSize);
     }
 
-    public GRLVQOptParam(int classes, int dimensions, int datasetSize) {
+    public GLVQOptParam(int classes, int dimensions, int datasetSize) {
         int[] ppc = new int[classes];
         Arrays.fill(ppc, 1);
         init(ppc, dimensions, datasetSize);
     }
 
-    public GRLVQOptParam(LabeledDataSet ds) {
+    public GLVQOptParam(LabeledDataSet ds) {
         this(ds.classes(), ds.dimensions(), ds.size());
     }
 
-    public GRLVQOptParam(int prototypesPerClass, int classes, int dimensions, int dsSize) {
+    public GLVQOptParam(int prototypesPerClass, int classes, int dimensions, int dsSize) {
         int[] ppc = new int[classes];
         Arrays.fill(ppc, prototypesPerClass);
         init(ppc, dimensions, dsSize);
     }
 
-    public GRLVQOptParam(int prototypesPerClass, LabeledDataSet ds) {
+    public GLVQOptParam(int prototypesPerClass, LabeledDataSet ds) {
         this(prototypesPerClass, ds.classes(), ds.dimensions(), ds.size());
     }
 
-    public GRLVQOptParam(int[] prototypesPerClass, int dimensions, int dsSize) {
+    public GLVQOptParam(int[] prototypesPerClass, int dimensions, int dsSize) {
         init(prototypesPerClass, dimensions, dsSize);
     }
 
-    public GRLVQOptParam(int[] prototypesPerClass, LabeledDataSet ds) {
+    public GLVQOptParam(int[] prototypesPerClass, LabeledDataSet ds) {
         this(prototypesPerClass, ds.dimensions(), ds.size());
         assert (ds.classes() == prototypesPerClass.length);
     }
@@ -211,7 +211,7 @@ public class GRLVQOptParam implements OptParam<GRLVQOptParam> {
     }
 
     @Override
-    public GRLVQOptParam add(GRLVQOptParam o) {
+    public GLVQOptParam add(GLVQOptParam o) {
         double[][] newProtos = newProtos();
         int protos = this.numProtos(), dims = this.dimensions();
         for (int i = 0; i < protos; i++) {
@@ -219,11 +219,11 @@ public class GRLVQOptParam implements OptParam<GRLVQOptParam> {
                 newProtos[i][j] = this.prototypes[i][j] + o.prototypes[i][j];
             }
         }
-        return new GRLVQOptParam(newProtos, this.labels, cMemo.size());
+        return new GLVQOptParam(newProtos, this.labels, cMemo.size());
     }
 
     @Override
-    public GRLVQOptParam add_s(GRLVQOptParam o) {
+    public GLVQOptParam add_s(GLVQOptParam o) {
         int protos = this.numProtos(), dims = this.dimensions();
         for (int i = 0; i < protos; i++) {
             for (int j = 0; j < dims; j++) {
@@ -234,7 +234,7 @@ public class GRLVQOptParam implements OptParam<GRLVQOptParam> {
     }
 
     @Override
-    public GRLVQOptParam sub(GRLVQOptParam o) {
+    public GLVQOptParam sub(GLVQOptParam o) {
         double[][] newProtos = newProtos();
         int protos = this.numProtos(), dims = this.dimensions();
         for (int i = 0; i < protos; i++) {
@@ -242,11 +242,11 @@ public class GRLVQOptParam implements OptParam<GRLVQOptParam> {
                 newProtos[i][j] = this.prototypes[i][j] - o.prototypes[i][j];
             }
         }
-        return new GRLVQOptParam(newProtos, this.labels, cMemo.size());
+        return new GLVQOptParam(newProtos, this.labels, cMemo.size());
     }
 
     @Override
-    public GRLVQOptParam sub_s(GRLVQOptParam o) {
+    public GLVQOptParam sub_s(GLVQOptParam o) {
         int protos = this.numProtos(), dims = this.dimensions();
         for (int i = 0; i < protos; i++) {
             for (int j = 0; j < dims; j++) {
@@ -257,12 +257,12 @@ public class GRLVQOptParam implements OptParam<GRLVQOptParam> {
     }
 
     @Override
-    public GRLVQOptParam zero() {
-        return new GRLVQOptParam(newProtos(), this.labels, cMemo.size());
+    public GLVQOptParam zero() {
+        return new GLVQOptParam(newProtos(), this.labels, cMemo.size());
     }
 
     @Override
-    public GRLVQOptParam zero_s() {
+    public GLVQOptParam zero_s() {
         for (double[] proto : this.prototypes) {
             Arrays.fill(proto, 0d);
         }
@@ -270,7 +270,24 @@ public class GRLVQOptParam implements OptParam<GRLVQOptParam> {
     }
 
     @Override
-    public GRLVQOptParam dotprod(GRLVQOptParam o) {
+    public GLVQOptParam one() {
+        double[][] newProtos = newProtos();
+        for (double[] proto : newProtos) {
+            Arrays.fill(proto, 1d);
+        }
+        return new GLVQOptParam(newProtos, this.labels, cMemo.size());
+    }
+
+    @Override
+    public GLVQOptParam one_s() {
+        for (double[] proto : this.prototypes) {
+            Arrays.fill(proto, 1d);
+        }
+        return this;
+    }
+
+    @Override
+    public GLVQOptParam dotprod(GLVQOptParam o) {
         double[][] newProtos = newProtos();
         int protos = this.numProtos(), dims = this.dimensions();
         for (int i = 0; i < protos; i++) {
@@ -278,11 +295,11 @@ public class GRLVQOptParam implements OptParam<GRLVQOptParam> {
                 newProtos[i][j] = this.prototypes[i][j] * o.prototypes[i][j];
             }
         }
-        return new GRLVQOptParam(newProtos, this.labels, cMemo.size());
+        return new GLVQOptParam(newProtos, this.labels, cMemo.size());
     }
 
     @Override
-    public GRLVQOptParam dotprod_s(GRLVQOptParam o) {
+    public GLVQOptParam dotprod_s(GLVQOptParam o) {
         int protos = this.numProtos(), dims = this.dimensions();
         for (int i = 0; i < protos; i++) {
             for (int j = 0; j < dims; j++) {
@@ -293,7 +310,7 @@ public class GRLVQOptParam implements OptParam<GRLVQOptParam> {
     }
 
     @Override
-    public GRLVQOptParam multiply(double o) {
+    public GLVQOptParam multiply(double o) {
         double[][] newProtos = newProtos();
         int protos = this.numProtos(), dims = this.dimensions();
         for (int i = 0; i < protos; i++) {
@@ -301,11 +318,11 @@ public class GRLVQOptParam implements OptParam<GRLVQOptParam> {
                 newProtos[i][j] = this.prototypes[i][j] * o;
             }
         }
-        return new GRLVQOptParam(newProtos, this.labels, cMemo.size());
+        return new GLVQOptParam(newProtos, this.labels, cMemo.size());
     }
 
     @Override
-    public GRLVQOptParam multiply_s(double o) {
+    public GLVQOptParam multiply_s(double o) {
         int protos = this.numProtos(), dims = this.dimensions();
         for (int i = 0; i < protos; i++) {
             for (int j = 0; j < dims; j++) {
@@ -316,13 +333,36 @@ public class GRLVQOptParam implements OptParam<GRLVQOptParam> {
     }
 
     @Override
-    public GRLVQOptParam copy() {
+    public GLVQOptParam inv() {
+        double[][] newProtos = newProtos();
+        int protos = this.numProtos(), dims = this.dimensions();
+        for (int i = 0; i < protos; i++) {
+            for (int j = 0; j < dims; j++) {
+                newProtos[i][j] = 1 / this.prototypes[i][j];
+            }
+        }
+        return new GLVQOptParam(newProtos, this.labels, cMemo.size());
+    }
+
+    @Override
+    public GLVQOptParam inv_s() {
+        int protos = this.numProtos(), dims = this.dimensions();
+        for (int i = 0; i < protos; i++) {
+            for (int j = 0; j < dims; j++) {
+                this.prototypes[i][j] = 1 / this.prototypes[i][j];
+            }
+        }
+        return this;
+    }
+
+    @Override
+    public GLVQOptParam copy() {
         double[][] newProtos = this.newProtos();
         int dims = this.dimensions();
         for (int i = 0; i < newProtos.length; i++) {
             System.arraycopy(this.prototypes[i], 0, newProtos[i], 0, dims);
         }
-        return new GRLVQOptParam(newProtos, this.labels, cMemo.size());
+        return new GLVQOptParam(newProtos, this.labels, cMemo.size());
     }
 
     @Override

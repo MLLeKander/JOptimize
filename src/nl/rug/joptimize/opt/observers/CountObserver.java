@@ -1,6 +1,9 @@
-package nl.rug.joptimize.opt;
+package nl.rug.joptimize.opt.observers;
 
-public class CountOptObserver<ParamType extends OptParam<ParamType>> implements
+import nl.rug.joptimize.opt.OptObserver;
+import nl.rug.joptimize.opt.OptParam;
+
+public class CountObserver<ParamType extends OptParam<ParamType>> implements
         OptObserver<ParamType> {
     public int epochCount = 0, exampleCount = 0;
 

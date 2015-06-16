@@ -6,29 +6,29 @@ import nl.rug.joptimize.opt.Optimizer;
 
 public class GLVQ implements Classifier {
 
-    GRLVQOptParam params;
-    GRLVQOptParam init;
-    Optimizer<GRLVQOptParam> opt;
+    GLVQOptParam params;
+    GLVQOptParam init;
+    Optimizer<GLVQOptParam> opt;
 
-    public GLVQ(LabeledDataSet ds, Optimizer<GRLVQOptParam> opt, GRLVQOptParam init) {
+    public GLVQ(LabeledDataSet ds, Optimizer<GLVQOptParam> opt, GLVQOptParam init) {
         this.opt = opt;
         this.init = init;
         this.train(ds);
     }
 
-    public GLVQ(LabeledDataSet ds, Optimizer<GRLVQOptParam> opt) {
-        this(ds, opt, new GRLVQOptParam(ds));
+    public GLVQ(LabeledDataSet ds, Optimizer<GLVQOptParam> opt) {
+        this(ds, opt, new GLVQOptParam(ds));
     }
 
-    public GLVQ(LabeledDataSet ds, Optimizer<GRLVQOptParam> opt, int prototypesPerClass) {
-        this(ds, opt, new GRLVQOptParam(prototypesPerClass, ds));
+    public GLVQ(LabeledDataSet ds, Optimizer<GLVQOptParam> opt, int prototypesPerClass) {
+        this(ds, opt, new GLVQOptParam(prototypesPerClass, ds));
     }
 
-    public GLVQ(LabeledDataSet ds, Optimizer<GRLVQOptParam> opt, int[] prototypesPerClass) {
-        this(ds, opt, new GRLVQOptParam(prototypesPerClass, ds));
+    public GLVQ(LabeledDataSet ds, Optimizer<GLVQOptParam> opt, int[] prototypesPerClass) {
+        this(ds, opt, new GLVQOptParam(prototypesPerClass, ds));
     }
 
-    public void setInit(GRLVQOptParam init) {
+    public void setInit(GLVQOptParam init) {
         this.init = init;
     }
 
@@ -46,7 +46,7 @@ public class GLVQ implements Classifier {
         return params.getClosestProtoLabel(data);
     }
 
-    public GRLVQOptParam getParams() {
+    public GLVQOptParam getParams() {
         return this.params;
     }
 }

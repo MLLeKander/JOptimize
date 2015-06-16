@@ -276,6 +276,20 @@ public class GRLVQOptParam implements OptParam<GRLVQOptParam> {
     }
 
     @Override
+    public GRLVQOptParam one() {
+        return new GRLVQOptParam(newProtos(), newWeights(), this.labels);
+    }
+
+    @Override
+    public GRLVQOptParam one_s() {
+        for (double[] proto : this.prototypes) {
+            Arrays.fill(proto, 1d);
+        }
+        Arrays.fill(this.weights, 1d);
+        return this;
+    }
+
+    @Override
     public GRLVQOptParam dotprod(GRLVQOptParam o) {
         double[][] newProtos = newProtos();
         double[] newWeights = newWeights();
