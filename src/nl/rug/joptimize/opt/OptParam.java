@@ -25,6 +25,10 @@ public interface OptParam<ParamType extends OptParam<ParamType>> {
 
     public ParamType inv_s();
 
+    public ParamType abs();
+
+    public ParamType abs_s();
+
     public ParamType multiply(double o);
 
     public ParamType multiply_s(double o);

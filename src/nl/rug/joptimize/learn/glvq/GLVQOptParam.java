@@ -310,29 +310,6 @@ public class GLVQOptParam implements OptParam<GLVQOptParam> {
     }
 
     @Override
-    public GLVQOptParam multiply(double o) {
-        double[][] newProtos = newProtos();
-        int protos = this.numProtos(), dims = this.dimensions();
-        for (int i = 0; i < protos; i++) {
-            for (int j = 0; j < dims; j++) {
-                newProtos[i][j] = this.prototypes[i][j] * o;
-            }
-        }
-        return new GLVQOptParam(newProtos, this.labels, cMemo.size());
-    }
-
-    @Override
-    public GLVQOptParam multiply_s(double o) {
-        int protos = this.numProtos(), dims = this.dimensions();
-        for (int i = 0; i < protos; i++) {
-            for (int j = 0; j < dims; j++) {
-                this.prototypes[i][j] *= o;
-            }
-        }
-        return this;
-    }
-
-    @Override
     public GLVQOptParam inv() {
         double[][] newProtos = newProtos();
         int protos = this.numProtos(), dims = this.dimensions();
@@ -350,6 +327,47 @@ public class GLVQOptParam implements OptParam<GLVQOptParam> {
         for (int i = 0; i < protos; i++) {
             for (int j = 0; j < dims; j++) {
                 this.prototypes[i][j] = 1 / this.prototypes[i][j];
+            }
+        }
+        return this;
+    }
+    
+    @Override
+    public GLVQOptParam abs() {
+        return this.copy().abs_s();
+    }
+    
+    @Override
+    public GLVQOptParam abs_s() {
+        int protos = this.numProtos(), dims = this.dimensions();
+        for (int i = 0; i < protos; i++) {
+            for (int j = 0; j < dims; j++) {
+                if (this.prototypes[i][j] < 0) {
+                    this.prototypes[i][j] *= -1;
+                }
+            }
+        }
+        return this;
+    }
+
+    @Override
+    public GLVQOptParam multiply(double o) {
+        double[][] newProtos = newProtos();
+        int protos = this.numProtos(), dims = this.dimensions();
+        for (int i = 0; i < protos; i++) {
+            for (int j = 0; j < dims; j++) {
+                newProtos[i][j] = this.prototypes[i][j] * o;
+            }
+        }
+        return new GLVQOptParam(newProtos, this.labels, cMemo.size());
+    }
+
+    @Override
+    public GLVQOptParam multiply_s(double o) {
+        int protos = this.numProtos(), dims = this.dimensions();
+        for (int i = 0; i < protos; i++) {
+            for (int j = 0; j < dims; j++) {
+                this.prototypes[i][j] *= o;
             }
         }
         return this;

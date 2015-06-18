@@ -5,26 +5,12 @@ import java.util.Random;
 
 import nl.rug.joptimize.opt.AbstractOptimizer;
 import nl.rug.joptimize.opt.OptParam;
-import nl.rug.joptimize.opt.SeperableCostFunction;
+import nl.rug.joptimize.opt.SeparableCostFunction;
 
 public class vSGD<ParamType extends OptParam<ParamType>> extends AbstractOptimizer<ParamType> { 
     private double epsilon;
     private int tMax;
     private Random rand = new Random();
-    
-    public static double pDbl(Map<String, String> params, String key) {
-        if (!params.containsKey("--"+key)) {
-            throw new IllegalArgumentException("Required argument: "+key);
-        }
-        return Double.parseDouble(params.get("--"+key));
-    }
-    
-    public static int pInt(Map<String, String> params, String key) {
-        if (!params.containsKey("--"+key)) {
-            throw new IllegalArgumentException("Required argument: "+key);
-        }
-        return Integer.parseInt(params.get("--"+key));
-    }
     
     public vSGD(Map<String, String> p) {
         this(pDbl(p,"epsilon"),pInt(p,"tmax"));
@@ -35,16 +21,15 @@ public class vSGD<ParamType extends OptParam<ParamType>> extends AbstractOptimiz
         this.tMax = tMax;
     }
 
-    public ParamType optimize(SeperableCostFunction<ParamType> cf, ParamType initParams) {
+    public ParamType optimize(SeparableCostFunction<ParamType> cf, ParamType initParams) {
         ParamType params = initParams.copy();
         int size = cf.size();
         int C = 10;
         double eps = 1e-10;
-        ParamType ONE = initParams.one();
+        ParamType ONE = initParams.one(), EPS = ONE.multiply(eps);
         
         ParamType gs = params.zero(), vs = params.zero();
         ParamType taus = params.one().multiply_s(size + eps);
-        System.out.println(taus);
         
         for (int i = 0; i < size; i++) {
             ParamType partialGrad = cf.deriv(params, i);
@@ -54,7 +39,8 @@ public class vSGD<ParamType extends OptParam<ParamType>> extends AbstractOptimiz
         
         gs.multiply_s(1./size);
         vs.multiply_s(C/(double)size);
-        ParamType hs = cf.hesseDiag(params).multiply_s(C/(double)size);
+        ParamType hs = cf.hesseDiag(params).multiply_s(C/(double)size).abs_s();
+        //System.out.printf("init gs:%s\ninit vs:%s\ninit hs:%s\ntaus: %s\n", gs,vs,hs,taus);
 
         double err = cf.error(params), diff = Double.MAX_VALUE;
         for (int t = 0; t < tMax && diff > epsilon; t++) {
@@ -72,13 +58,14 @@ public class vSGD<ParamType extends OptParam<ParamType>> extends AbstractOptimiz
                 // vs = tauInvComp .* vs + tauInv .* (gradTmp .^ 2)
                 vs.dotprod_s(tauInvComp).add_s(tauInv.dotprod(grad).dotprod_s(grad));
                 // hs = tauInvComp .* hs + tauInv .* max(epsilon,hesse)
-                // TODO: .max?
-                hs.dotprod_s(tauInvComp).add_s(tauInv.dotprod_s(hesse));
+                // TODO: Max or abs?
+                hs.dotprod_s(tauInvComp).add_s(tauInv.dotprod_s(hesse).abs_s());
                 
                 // TODO: .divide?
                 
-                ParamType learningRates = gs.dotprod(gs).dotprod_s(hs.dotprod(vs).inv_s());
+                ParamType learningRates = gs.dotprod(gs).dotprod_s(hs.dotprod(vs).add_s(EPS).inv_s());
                 params.sub_s(grad.dotprod_s(learningRates));
+                //System.out.printf("grad:%s\nhess:%s\ngs:%s\nvs:%s\nhs:%s\nrates:%s", grad,hesse,gs,vs,hs,learningRates);
                 
                 // taus = (1 - (gs.^2)./vs).*taus + 1
                 taus.dotprod_s(vs.inv().dotprod_s(gs).dotprod_s(gs).multiply_s(-1).add_s(ONE)).add_s(ONE);

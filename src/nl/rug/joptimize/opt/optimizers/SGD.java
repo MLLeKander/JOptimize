@@ -4,7 +4,7 @@ import java.util.Random;
 
 import nl.rug.joptimize.opt.AbstractOptimizer;
 import nl.rug.joptimize.opt.OptParam;
-import nl.rug.joptimize.opt.SeperableCostFunction;
+import nl.rug.joptimize.opt.SeparableCostFunction;
 
 public class SGD<ParamType extends OptParam<ParamType>> extends
         AbstractOptimizer<ParamType> {
@@ -19,7 +19,7 @@ public class SGD<ParamType extends OptParam<ParamType>> extends
         this.tMax = tMax;
     }
 
-    public ParamType optimize(SeperableCostFunction<ParamType> cf, ParamType initParams) {
+    public ParamType optimize(SeparableCostFunction<ParamType> cf, ParamType initParams) {
         ParamType params = initParams.copy();
         int size = cf.size();
 

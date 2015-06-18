@@ -21,4 +21,32 @@ public abstract class AbstractOptimizer<ParamType extends OptParam<ParamType>> i
             ob.notifyEpoch(params, error);
         }
     }
+    
+    public static double pDbl(Map<String, String> params, String key) {
+        if (!params.containsKey("--"+key)) {
+            throw new IllegalArgumentException("Required argument: "+key);
+        }
+        return Double.parseDouble(params.get("--"+key));
+    }
+    
+    public static double pDbl(Map<String, String> params, double deflt, String key) {
+        if (!params.containsKey("--"+key)) {
+            return deflt;
+        }
+        return Double.parseDouble(params.get("--"+key));
+    }
+    
+    public static int pInt(Map<String, String> params, String key) {
+        if (!params.containsKey("--"+key)) {
+            throw new IllegalArgumentException("Required argument: "+key);
+        }
+        return Integer.parseInt(params.get("--"+key));
+    }
+    
+    public static int pInt(Map<String, String> params, int deflt, String key) {
+        if (!params.containsKey("--"+key)) {
+            return deflt;
+        }
+        return Integer.parseInt(params.get("--"+key));
+    }
 }

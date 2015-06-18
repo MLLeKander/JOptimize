@@ -5,7 +5,7 @@ import java.util.Map;
 
 import nl.rug.joptimize.opt.AbstractOptimizer;
 import nl.rug.joptimize.opt.OptParam;
-import nl.rug.joptimize.opt.SeperableCostFunction;
+import nl.rug.joptimize.opt.SeparableCostFunction;
 
 public class WA_BGD<ParamType extends OptParam<ParamType>> extends
         AbstractOptimizer<ParamType> {
@@ -16,34 +16,6 @@ public class WA_BGD<ParamType extends OptParam<ParamType>> extends
     private ArrayDeque<ParamType> hist;
     private double loss;
     private double gain;
-    
-    public static double pDbl(Map<String, String> params, String key) {
-        if (!params.containsKey("--"+key)) {
-            throw new IllegalArgumentException("Required argument: "+key);
-        }
-        return Double.parseDouble(params.get("--"+key));
-    }
-    
-    public static double pDbl(Map<String, String> params, double deflt, String key) {
-        if (!params.containsKey("--"+key)) {
-            return deflt;
-        }
-        return Double.parseDouble(params.get("--"+key));
-    }
-    
-    public static int pInt(Map<String, String> params, String key) {
-        if (!params.containsKey("--"+key)) {
-            throw new IllegalArgumentException("Required argument: "+key);
-        }
-        return Integer.parseInt(params.get("--"+key));
-    }
-    
-    public static int pInt(Map<String, String> params, int deflt, String key) {
-        if (!params.containsKey("--"+key)) {
-            return deflt;
-        }
-        return Integer.parseInt(params.get("--"+key));
-    }
     
     public WA_BGD(Map<String, String> p) {
         this(pDbl(p,"rate"),pDbl(p,"epsilon"),pInt(p,"tmax"),pInt(p,"hist"),pDbl(p,1,"loss"),pDbl(p,1,"gain"));
@@ -63,7 +35,7 @@ public class WA_BGD<ParamType extends OptParam<ParamType>> extends
         this.gain = gain;
     }
 
-    public ParamType optimize(SeperableCostFunction<ParamType> cf, ParamType initParams) {
+    public ParamType optimize(SeparableCostFunction<ParamType> cf, ParamType initParams) {
         ParamType params = initParams.copy();
         double learningRate = initLearningRate;
         
@@ -74,7 +46,7 @@ public class WA_BGD<ParamType extends OptParam<ParamType>> extends
             ParamType grad = cf.deriv(params);
             
             diff = grad.squaredNorm();
-            params.sub_s(grad.multiply_s(learningRate));///Math.sqrt(grad.squaredNorm())));
+            params.sub_s(grad.multiply_s(learningRate));// / Math.sqrt(grad.squaredNorm())));
             double err = cf.error(params);
             
             runningSum.add_s(params);

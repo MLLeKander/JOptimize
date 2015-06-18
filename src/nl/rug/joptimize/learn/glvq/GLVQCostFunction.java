@@ -1,9 +1,9 @@
 package nl.rug.joptimize.learn.glvq;
 
 import nl.rug.joptimize.learn.LabeledDataSet;
-import nl.rug.joptimize.opt.SeperableCostFunction;
+import nl.rug.joptimize.opt.SeparableCostFunction;
 
-public class GLVQCostFunction implements SeperableCostFunction<GLVQOptParam> {
+public class GLVQCostFunction implements SeparableCostFunction<GLVQOptParam> {
     private final LabeledDataSet ds;
 
     public GLVQCostFunction(LabeledDataSet ds) {
@@ -130,7 +130,7 @@ public class GLVQCostFunction implements SeperableCostFunction<GLVQOptParam> {
     
     public void check(double a, double b) {
         if (Math.abs(a-b) / Math.min(a,b) > 1e-3) {
-            System.out.println(a+" "+b);
+            System.out.println("SOMETHING WRONG!!! "+a+" "+b);
             //throw new IllegalStateException();
         } else {
             //System.out.println("Here");

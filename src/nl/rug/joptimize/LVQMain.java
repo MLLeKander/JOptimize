@@ -1,3 +1,4 @@
+// java -cp bin nl.rug.joptimize.LVQMain segment.dat  --rate 0.1 --epsilon 1e-4 --tmax 1000000 --freq 500 --opt bgd
 package nl.rug.joptimize;
 
 import java.io.File;
@@ -6,13 +7,18 @@ import java.util.HashMap;
 import java.util.Map;
 
 import nl.rug.joptimize.learn.LabeledDataSet;
-import nl.rug.joptimize.learn.glvq.*;
-import nl.rug.joptimize.opt.*;
-import nl.rug.joptimize.opt.observers.*;
-import nl.rug.joptimize.opt.optimizers.*;
+import nl.rug.joptimize.learn.grlvq.GRLVQ;
+import nl.rug.joptimize.learn.grlvq.GRLVQOptParam;
+import nl.rug.joptimize.opt.AbstractOptimizer;
+import nl.rug.joptimize.opt.OptObserver;
+import nl.rug.joptimize.opt.observers.CountObserver;
+import nl.rug.joptimize.opt.observers.TimeObserver;
+import nl.rug.joptimize.opt.optimizers.BGD;
+import nl.rug.joptimize.opt.optimizers.WA_BGD;
+import nl.rug.joptimize.opt.optimizers.vSGD;
 
 public class LVQMain {
-    public static final AbstractOptimizer<GLVQOptParam> DEFAULT_OPT = new BGD<>(0.1, 1e-5, 10000);
+    public static final AbstractOptimizer<GRLVQOptParam> DEFAULT_OPT = new BGD<>(0.1, 1e-5, 10000);
     
     public static Map<String, String> parseArgs(String[] args) {
         Map<String, String> out = new HashMap<String, String>();
@@ -43,44 +49,42 @@ public class LVQMain {
         System.exit(-1);
     }
     
-    public static AbstractOptimizer<GLVQOptParam> createOptimizer(Map<String, String> args) {
+    public static AbstractOptimizer<GRLVQOptParam> createOptimizer(Map<String, String> args) {
         if (!args.containsKey("--opt")) {
             return DEFAULT_OPT;
         }
         String opt = args.get("--opt").toUpperCase().replaceAll("[\\p{Punct} ]+", "");
         if (opt.equals("BGD")) {
             return new BGD<>(args);
+//        } else if (opt.equals("SGD")) {
+//            return new BGD<>(args);
         } else if (opt.equals("WABGD")) {
             return new WA_BGD<>(args);
         } else if (opt.equals("VSGD")) {
             return new vSGD<>(args);
         }
-        return null;
+        throw new IllegalArgumentException("Unknown optimizer: "+opt);
     }
 
     public static void main(String[] args) throws FileNotFoundException {
-        Map<String, String> argMap = parseArgs(args);//new String[]{"/home/michael/Documents/Internship/segment.dat"});
+        Map<String, String> argMap = parseArgs(args);
         if (!argMap.containsKey("")) {
             System.err.println("No data file given.");
             printUsage();
         }
-        if (argMap.containsKey("--opt")) {
-            
-        }
         final LabeledDataSet ds = LabeledDataSet.parseDataFile(new File(argMap.get("")));
         //BGD<GRLVQOptParam> opt = new BGD<>(0.1, 1e-5, 100000);
         //WA_BGD<GLVQOptParam> opt = new WA_BGD<>(0.1, 1e-3, 100000, 10, .75, 1.5);
-        AbstractOptimizer<GLVQOptParam> opt = createOptimizer(argMap);
-        System.out.println("Proceeding with optimizer: "+opt);
-
-        CountObserver<GLVQOptParam> counter = new CountObserver<>();
-        TimeObserver<GLVQOptParam> timer = new TimeObserver<>();
-        opt.addObs(new OptObserver<GLVQOptParam>() {
+        AbstractOptimizer<GRLVQOptParam> opt = createOptimizer(argMap);
+        System.out.println("Proceeding with optimizer: "+opt.getClass().getName());
+        
+        final int freq = argMap.containsKey("--freq") ? Integer.parseInt(argMap.get("--freq")) : 50;
+        opt.addObs(new OptObserver<GRLVQOptParam>() {
             int t = 0;
             @Override
-            public void notifyEpoch(GLVQOptParam params, double error) {
-                if (t++%5 == 0) {
-                    System.out.println(params);
+            public void notifyEpoch(GRLVQOptParam params, double error) {
+                if (t++%freq == 0) {
+                    //System.out.println(params);
                     int err = 0;
                     for (int i = 0; i < ds.size(); i++) {
                         if (params.getClosestProtoLabel(ds.getData(i)) != ds.getLabel(i)) {
@@ -92,12 +96,15 @@ public class LVQMain {
             }
 
             @Override
-            public void notifyExample(GLVQOptParam params) { }
+            public void notifyExample(GRLVQOptParam params) { }
         });
+        
+        CountObserver<GRLVQOptParam> counter = new CountObserver<>();
+        TimeObserver<GRLVQOptParam> timer = new TimeObserver<>();
         opt.addObs(counter);
         opt.addObs(timer);
 
-        GLVQ lvq = new GLVQ(ds, opt);
+        GRLVQ lvq = new GRLVQ(ds, opt);
         int err = 0;
         for (int i = 0; i < ds.size(); i++) {
             if (lvq.classify(ds.getData(i)) != ds.getLabel(i)) {

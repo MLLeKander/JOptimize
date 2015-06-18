@@ -4,27 +4,13 @@ import java.util.Map;
 
 import nl.rug.joptimize.opt.AbstractOptimizer;
 import nl.rug.joptimize.opt.OptParam;
-import nl.rug.joptimize.opt.SeperableCostFunction;
+import nl.rug.joptimize.opt.SeparableCostFunction;
 
 public class BGD<ParamType extends OptParam<ParamType>> extends
         AbstractOptimizer<ParamType> {
     private double learningRate;
     private double epsilon;
     private int tMax;
-    
-    public static double pDbl(Map<String, String> params, String key) {
-        if (!params.containsKey("--"+key)) {
-            throw new IllegalArgumentException("Required argument: "+key);
-        }
-        return Double.parseDouble(params.get("--"+key));
-    }
-    
-    public static int pInt(Map<String, String> params, String key) {
-        if (!params.containsKey("--"+key)) {
-            throw new IllegalArgumentException("Required argument: "+key);
-        }
-        return Integer.parseInt(params.get("--"+key));
-    }
     
     public BGD(Map<String, String> p) {
         this(pDbl(p,"rate"), pDbl(p,"epsilon"), pInt(p,"tmax"));
@@ -36,8 +22,8 @@ public class BGD<ParamType extends OptParam<ParamType>> extends
         this.tMax = tMax;
     }
 
-    // TODO This doesn't need to be Seperable...
-    public ParamType optimize(SeperableCostFunction<ParamType> cf, ParamType initParams) {
+    // TODO This doesn't need to be Separable...
+    public ParamType optimize(SeparableCostFunction<ParamType> cf, ParamType initParams) {
         ParamType params = initParams.copy();
 
         double err = cf.error(params), diff = Double.MAX_VALUE;
@@ -49,6 +35,7 @@ public class BGD<ParamType extends OptParam<ParamType>> extends
             err = cf.error(params);
             this.notifyEpoch(params, err);
         }
+        System.err.println(params);
         return params;
     }
     

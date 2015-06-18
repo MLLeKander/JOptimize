@@ -14,12 +14,14 @@ public class GRLVQOptParam implements OptParam<GRLVQOptParam> {
 
     public GRLVQOptParam(double[][] prototypes, double[] weights, int[] labels) {
         this.prototypes = prototypes;
+        this.weights = weights;
         this.labels = labels;
     }
 
     public GRLVQOptParam(double[][] prototypes, int[] labels) {
         this.prototypes = prototypes;
         this.labels = labels;
+        this.weights = new double[prototypes[0].length];
     }
 
     public GRLVQOptParam(int classes, int dimensions) {
@@ -263,7 +265,7 @@ public class GRLVQOptParam implements OptParam<GRLVQOptParam> {
 
     @Override
     public GRLVQOptParam zero() {
-        return new GRLVQOptParam(newProtos(), newWeights(), this.labels);
+        return copy().zero_s();
     }
 
     @Override
@@ -277,7 +279,7 @@ public class GRLVQOptParam implements OptParam<GRLVQOptParam> {
 
     @Override
     public GRLVQOptParam one() {
-        return new GRLVQOptParam(newProtos(), newWeights(), this.labels);
+        return copy().one_s();
     }
 
     @Override
@@ -315,6 +317,61 @@ public class GRLVQOptParam implements OptParam<GRLVQOptParam> {
         }
         for (int i = 0; i < dims; i++) {
             this.weights[i] *= o.weights[i];
+        }
+        return this;
+    }
+
+    @Override
+    public GRLVQOptParam inv() {
+        double[][] newProtos = newProtos();
+        double[] newWeights = newWeights();
+        int protos = this.numProtos(), dims = this.dimensions();
+        for (int i = 0; i < protos; i++) {
+            for (int j = 0; j < dims; j++) {
+                newProtos[i][j] = 1 / this.prototypes[i][j];
+            }
+        }
+        for (int i = 0; i < dims; i++) {
+            newWeights[i] = 1 / this.weights[i];
+        }
+        return new GRLVQOptParam(newProtos, newWeights, this.labels);
+    }
+
+    @Override
+    public GRLVQOptParam inv_s() {
+        double[][] newProtos = newProtos();
+        double[] newWeights = newWeights();
+        int protos = this.numProtos(), dims = this.dimensions();
+        for (int i = 0; i < protos; i++) {
+            for (int j = 0; j < dims; j++) {
+                newProtos[i][j] = 1 / this.prototypes[i][j];
+            }
+        }
+        for (int i = 0; i < dims; i++) {
+            newWeights[i] = 1 / this.weights[i];
+        }
+        return this;
+    }
+
+    @Override
+    public GRLVQOptParam abs() {
+        return this.copy().abs_s();
+    }
+
+    @Override
+    public GRLVQOptParam abs_s() {
+        int protos = this.numProtos(), dims = this.dimensions();
+        for (int i = 0; i < protos; i++) {
+            for (int j = 0; j < dims; j++) {
+                if (this.prototypes[i][j] < 0) {
+                    this.prototypes[i][j] *= -1;
+                }
+            }
+        }
+        for (int i = 0; i < dims; i++) {
+            if (this.weights[i] < 0) {
+                this.weights[i] *= -1;
+            }
         }
         return this;
     }
@@ -408,6 +465,6 @@ public class GRLVQOptParam implements OptParam<GRLVQOptParam> {
     }
 
     public String toString() {
-        return Arrays.deepToString(prototypes);
+        return Arrays.deepToString(prototypes)+" "+Arrays.toString(weights);
     }
 }

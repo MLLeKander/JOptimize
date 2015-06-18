@@ -1,6 +1,6 @@
 package nl.rug.joptimize.opt;
 
-public interface SeperableCostFunction<ParamType extends OptParam<ParamType>> extends
+public interface SeparableCostFunction<ParamType extends OptParam<ParamType>> extends
         CostFunction<ParamType> {
     public double error(ParamType params, int exampleNdx);
 

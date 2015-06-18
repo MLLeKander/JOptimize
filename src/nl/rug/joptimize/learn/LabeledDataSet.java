@@ -72,6 +72,7 @@ public class LabeledDataSet {
         while (file.hasNextLine()) {
             line = new Scanner(file.nextLine());
             line.useDelimiter(",");
+            if (!line.hasNext()) continue;
             ArrayList<Double> nextLine = new ArrayList<>(dims);
             for (int i = 0; i < dims; i++) {
                 nextLine.add(line.nextDouble());
