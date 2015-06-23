@@ -14,6 +14,7 @@ import nl.rug.joptimize.opt.OptObserver;
 import nl.rug.joptimize.opt.observers.CountObserver;
 import nl.rug.joptimize.opt.observers.TimeObserver;
 import nl.rug.joptimize.opt.optimizers.BGD;
+import nl.rug.joptimize.opt.optimizers.SGD;
 import nl.rug.joptimize.opt.optimizers.WA_BGD;
 import nl.rug.joptimize.opt.optimizers.vSGD;
 
@@ -56,8 +57,8 @@ public class LVQMain {
         String opt = args.get("--opt").toUpperCase().replaceAll("[\\p{Punct} ]+", "");
         if (opt.equals("BGD")) {
             return new BGD<>(args);
-//        } else if (opt.equals("SGD")) {
-//            return new BGD<>(args);
+        } else if (opt.equals("SGD")) {
+            return new SGD<>(args);
         } else if (opt.equals("WABGD")) {
             return new WA_BGD<>(args);
         } else if (opt.equals("VSGD")) {
@@ -73,8 +74,6 @@ public class LVQMain {
             printUsage();
         }
         final LabeledDataSet ds = LabeledDataSet.parseDataFile(new File(argMap.get("")));
-        //BGD<GRLVQOptParam> opt = new BGD<>(0.1, 1e-5, 100000);
-        //WA_BGD<GLVQOptParam> opt = new WA_BGD<>(0.1, 1e-3, 100000, 10, .75, 1.5);
         AbstractOptimizer<GRLVQOptParam> opt = createOptimizer(argMap);
         System.out.println("Proceeding with optimizer: "+opt.getClass().getName());
         
@@ -91,7 +90,7 @@ public class LVQMain {
                             err++;
                         }
                     }
-                    System.out.println(err+" / "+ds.size()+", "+error);//+ " | "+params);
+                    System.out.println(t+": "+err+" / "+ds.size()+", "+error);//+ " | "+params);
                 }
             }
 
@@ -104,7 +103,9 @@ public class LVQMain {
         opt.addObs(counter);
         opt.addObs(timer);
 
-        GRLVQ lvq = new GRLVQ(ds, opt);
+        GRLVQOptParam p = new GRLVQOptParam(new double[][]{{0,0.5},{0,-0.5}}, new double[]{1,1}, new int[]{0,1});
+        GRLVQ lvq = new GRLVQ(ds, opt, p);
+        
         int err = 0;
         for (int i = 0; i < ds.size(); i++) {
             if (lvq.classify(ds.getData(i)) != ds.getLabel(i)) {
@@ -115,6 +116,7 @@ public class LVQMain {
         System.out.println(counter.getEpochCount());
         
         System.out.println(timer.end - timer.start + " nanoseconds");
+        System.out.println(lvq.getParams());
     }
 
 }

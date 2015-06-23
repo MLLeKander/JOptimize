@@ -3,6 +3,7 @@ package nl.rug.joptimize.opt.optimizers;
 import java.util.Map;
 
 import nl.rug.joptimize.opt.AbstractOptimizer;
+import nl.rug.joptimize.opt.CostFunction;
 import nl.rug.joptimize.opt.OptParam;
 import nl.rug.joptimize.opt.SeparableCostFunction;
 
@@ -22,20 +23,27 @@ public class BGD<ParamType extends OptParam<ParamType>> extends
         this.tMax = tMax;
     }
 
-    // TODO This doesn't need to be Separable...
+    @Override
     public ParamType optimize(SeparableCostFunction<ParamType> cf, ParamType initParams) {
+        return optimize((CostFunction<ParamType>)cf, initParams);
+    }
+    
+    public ParamType optimize(CostFunction<ParamType> cf, ParamType initParams) {
         ParamType params = initParams.copy();
 
         double err = cf.error(params), diff = Double.MAX_VALUE;
         for (int t = 0; t < tMax && diff >= epsilon; t++) {
             ParamType grad = cf.deriv(params);
+//            System.out.println("Param: "+params);
+//            System.out.println("Grad: "+grad);
 
             diff = grad.squaredNorm();
             params.sub_s(grad.multiply_s(learningRate));
+//            System.out.println("Params after: "+grad);
             err = cf.error(params);
             this.notifyEpoch(params, err);
         }
-        System.err.println(params);
+//        System.err.println("Final params: "+params);
         return params;
     }
     

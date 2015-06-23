@@ -29,6 +29,14 @@ public interface OptParam<ParamType extends OptParam<ParamType>> {
 
     public ParamType abs_s();
 
+    public ParamType lbound(double o);
+
+    public ParamType lbound_s(double o);
+
+    public ParamType ubound(double o);
+
+    public ParamType ubound_s(double o);
+
     public ParamType multiply(double o);
 
     public ParamType multiply_s(double o);

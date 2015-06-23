@@ -9,7 +9,7 @@ import nl.rug.joptimize.opt.OptParam;
 
 public class GRLVQOptParam implements OptParam<GRLVQOptParam> {
     double[][] prototypes;
-    double[] weights;
+    public double[] weights;
     int[] labels;
 
     public GRLVQOptParam(double[][] prototypes, double[] weights, int[] labels) {
@@ -258,7 +258,7 @@ public class GRLVQOptParam implements OptParam<GRLVQOptParam> {
             }
         }
         for (int i = 0; i < dims; i++) {
-            this.weights[i] += o.weights[i];
+            this.weights[i] -= o.weights[i];
         }
         return this;
     }
@@ -375,6 +375,52 @@ public class GRLVQOptParam implements OptParam<GRLVQOptParam> {
         }
         return this;
     }
+    
+    @Override
+    public GRLVQOptParam lbound(double o) {
+        return copy().lbound_s(o);
+    }
+    
+    @Override
+    public GRLVQOptParam lbound_s(double o) {
+        int protos = this.numProtos(), dims = this.dimensions();
+        for (int i = 0; i < protos; i++) {
+            for (int j = 0; j < dims; j++) {
+                if (this.prototypes[i][j] < o) {
+                    this.prototypes[i][j] = o;
+                }
+            }
+        }
+        for (int i = 0; i < dims; i++) {
+            if (this.weights[i] < o) {
+                this.weights[i] = o;
+            }
+        }
+        return this;
+    }
+    
+    @Override
+    public GRLVQOptParam ubound(double o) {
+        return copy().lbound_s(o);
+    }
+    
+    @Override
+    public GRLVQOptParam ubound_s(double o) {
+        int protos = this.numProtos(), dims = this.dimensions();
+        for (int i = 0; i < protos; i++) {
+            for (int j = 0; j < dims; j++) {
+                if (this.prototypes[i][j] > o) {
+                    this.prototypes[i][j] = o;
+                }
+            }
+        }
+        for (int i = 0; i < dims; i++) {
+            if (this.weights[i] > o) {
+                this.weights[i] = o;
+            }
+        }
+        return this;
+    }
 
     @Override
     public GRLVQOptParam multiply(double o) {
@@ -401,7 +447,7 @@ public class GRLVQOptParam implements OptParam<GRLVQOptParam> {
             }
         }
         for (int i = 0; i < dims; i++) {
-            this.weights[i] += o;
+            this.weights[i] *= o;
         }
         return this;
     }
@@ -445,8 +491,8 @@ public class GRLVQOptParam implements OptParam<GRLVQOptParam> {
         assert (proto.length == data.length);
         double out = 0;
         for (int i = 0; i < data.length; i++) {
-            double tmp = proto[i] - data[i];
-            out += this.weights[i] * tmp * tmp;
+            double tmp = this.weights[i] * (proto[i] - data[i]);
+            out += tmp * tmp;
         }
         return out;
     }
@@ -455,8 +501,8 @@ public class GRLVQOptParam implements OptParam<GRLVQOptParam> {
         double[] proto = this.prototypes[ndx];
         double out = 0;
         for (int i = 0; i < data.length; i++) {
-            double tmp = proto[i] - data[i];
-            out += this.weights[i] * tmp * tmp;
+            double tmp = this.weights[i] * (proto[i] - data[i]);
+            out += tmp * tmp;
             if (out > minDist) {
                 break;
             }
@@ -465,6 +511,24 @@ public class GRLVQOptParam implements OptParam<GRLVQOptParam> {
     }
 
     public String toString() {
-        return Arrays.deepToString(prototypes)+" "+Arrays.toString(weights);
+        StringBuilder sb = new StringBuilder("[");
+        for (double[] row : prototypes) {
+            sb.append('[');
+            String sep = "";
+            for (double val : row) {
+                sb.append(sep);
+                sb.append(String.format("%.3E",val));
+                sep=",";
+            }
+            sb.append(']');
+        }
+        sb.append("] {");
+        String sep = "";
+        for (double val : weights) {
+            sb.append(sep);
+            sb.append(String.format("%.3E", val));
+            sep=",";
+        }
+        return sb.append('}').toString();
     }
 }
