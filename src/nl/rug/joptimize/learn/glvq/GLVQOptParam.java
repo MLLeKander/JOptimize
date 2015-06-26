@@ -351,6 +351,42 @@ public class GLVQOptParam implements OptParam<GLVQOptParam> {
     }
 
     @Override
+    public GLVQOptParam lbound(double o) {
+        return this.copy().lbound_s(o);
+    }
+
+    @Override
+    public GLVQOptParam lbound_s(double o) {
+        int protos = this.numProtos(), dims = this.dimensions();
+        for (int i = 0; i < protos; i++) {
+            for (int j = 0; j < dims; j++) {
+                if (this.prototypes[i][j] < o) {
+                    this.prototypes[i][j] = o;
+                }
+            }
+        }
+        return this;
+    }
+
+    @Override
+    public GLVQOptParam ubound(double o) {
+        return this.copy().ubound_s(o);
+    }
+
+    @Override
+    public GLVQOptParam ubound_s(double o) {
+        int protos = this.numProtos(), dims = this.dimensions();
+        for (int i = 0; i < protos; i++) {
+            for (int j = 0; j < dims; j++) {
+                if (this.prototypes[i][j] > o) {
+                    this.prototypes[i][j] = o;
+                }
+            }
+        }
+        return this;
+    }
+
+    @Override
     public GLVQOptParam multiply(double o) {
         double[][] newProtos = newProtos();
         int protos = this.numProtos(), dims = this.dimensions();
@@ -422,6 +458,7 @@ public class GLVQOptParam implements OptParam<GLVQOptParam> {
         return out;
     }
 
+    @Override
     public String toString() {
         return Arrays.deepToString(prototypes);
     }

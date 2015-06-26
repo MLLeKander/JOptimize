@@ -10,10 +10,4 @@ public class PrintObserver<ParamType extends OptParam<ParamType>> implements
     public void notifyEpoch(ParamType params, double error) {
         System.out.println(error+" " +params);
     }
-
-    @Override
-    public void notifyExample(ParamType params) {
-        System.out.println(params);
-    }
-
 }

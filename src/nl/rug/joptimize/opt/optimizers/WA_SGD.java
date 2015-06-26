@@ -1,13 +1,13 @@
 package nl.rug.joptimize.opt.optimizers;
 
 import java.util.ArrayDeque;
+import java.util.Random;
 
 import nl.rug.joptimize.opt.AbstractOptimizer;
 import nl.rug.joptimize.opt.OptParam;
 import nl.rug.joptimize.opt.SeparableCostFunction;
 
-public class WA_BGD<ParamType extends OptParam<ParamType>> extends
-        AbstractOptimizer<ParamType> {
+public class WA_SGD<ParamType extends OptParam<ParamType>> extends AbstractOptimizer<ParamType> {
     private double initLearningRate;
     private double learningRate;
     private int histSize;
@@ -16,18 +16,16 @@ public class WA_BGD<ParamType extends OptParam<ParamType>> extends
     private ParamType runningSum;
     private double loss;
     private double gain;
+    private Random rand;
     
-    public WA_BGD(double initialLearningRate, double epsilon, int tMax, int histSize, double loss) {
-        this(initialLearningRate, histSize, loss, 1, epsilon, tMax);
-    }
-
-    public WA_BGD(double initialLearningRate, int histSize, double loss, double gain, double epsilon, int tMax) {
+    public WA_SGD(long seed, double initialLearningRate, int histSize, double loss, double gain, double epsilon, int tMax) {
         super(epsilon, tMax);
         this.initLearningRate = initialLearningRate;
         this.histSize = histSize;
         this.histInv = 1./histSize;
         this.loss = loss;
         this.gain = gain;
+        this.rand = new Random(seed);
     }
     
     @Override
@@ -36,17 +34,22 @@ public class WA_BGD<ParamType extends OptParam<ParamType>> extends
         this.runningSum = initParams.zero();
         this.hist = new ArrayDeque<>(histSize);
     }
-
+    
     @Override
     public ParamType optimizationStep(SeparableCostFunction<ParamType> cf, ParamType params) {
-        ParamType outParams = cf.deriv(params).multiply_s(-learningRate).add_s(params);
+        ParamType outParams = params.copy();
+        int size = cf.size();
+        for (int i = 0; i < size; i++) {
+            ParamType partialGrad = cf.deriv(outParams, rand.nextInt(size));
+            outParams.sub_s(partialGrad.multiply_s(learningRate));
+        }
         
         //TODO: .multiply(histInv) before adding to runningSum?
         runningSum.add_s(outParams);
         if (hist.size() >= histSize-1) {
             ParamType waypointAverage = runningSum.multiply(histInv);
             
-            // TODO: Wasting a full error calculation here...
+            //TODO: Wasting a full error calculation here...
             if (cf.error(waypointAverage) < cf.error(outParams)) {
                 runningSum.sub_s(outParams).add_s(waypointAverage);
                 outParams = waypointAverage.copy();
@@ -58,10 +61,5 @@ public class WA_BGD<ParamType extends OptParam<ParamType>> extends
         }
         hist.add(outParams.copy());
         return outParams;
-    }
-    
-    @Override
-    public String toString() {
-        return String.format("%s (nu=%.2f,ep=%.2f,tMax=%d,hist=%d,loss=%.2f,gain=%.2f)", this.getClass().getSimpleName(),initLearningRate,epsilon,tMax,histSize,loss,gain);
     }
 }

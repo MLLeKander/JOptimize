@@ -3,14 +3,16 @@
 package nl.rug.joptimize.learn.grlvq;
 
 import java.util.Arrays;
+import java.util.Random;
 
 import nl.rug.joptimize.learn.LabeledDataSet;
 import nl.rug.joptimize.opt.OptParam;
 
 public class GRLVQOptParam implements OptParam<GRLVQOptParam> {
-    double[][] prototypes;
+    public double[][] prototypes;
     public double[] weights;
-    int[] labels;
+    public int[] labels;
+    public static final Random rand = new Random(1);
 
     public GRLVQOptParam(double[][] prototypes, double[] weights, int[] labels) {
         this.prototypes = prototypes;
@@ -62,7 +64,7 @@ public class GRLVQOptParam implements OptParam<GRLVQOptParam> {
         this.prototypes = new double[protoCount][dimensions];
         for (double[] row : prototypes) {
             for (int i = 0; i < row.length; i++) {
-                row[i] += (Math.random()-0.5)/100;
+                row[i] += (rand.nextDouble()-0.5)/100;
             }
         }
         
@@ -339,16 +341,14 @@ public class GRLVQOptParam implements OptParam<GRLVQOptParam> {
 
     @Override
     public GRLVQOptParam inv_s() {
-        double[][] newProtos = newProtos();
-        double[] newWeights = newWeights();
         int protos = this.numProtos(), dims = this.dimensions();
         for (int i = 0; i < protos; i++) {
             for (int j = 0; j < dims; j++) {
-                newProtos[i][j] = 1 / this.prototypes[i][j];
+                this.prototypes[i][j] = 1 / this.prototypes[i][j];
             }
         }
         for (int i = 0; i < dims; i++) {
-            newWeights[i] = 1 / this.weights[i];
+            this.weights[i] = 1 / this.weights[i];
         }
         return this;
     }
@@ -510,6 +510,7 @@ public class GRLVQOptParam implements OptParam<GRLVQOptParam> {
         return out;
     }
 
+    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("[");
         for (double[] row : prototypes) {

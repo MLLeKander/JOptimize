@@ -1,7 +1,5 @@
 package nl.rug.joptimize.learn.grlvq;
 
-import java.util.Arrays;
-
 import nl.rug.joptimize.learn.LabeledDataSet;
 import nl.rug.joptimize.opt.SeparableCostFunction;
 

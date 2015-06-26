@@ -8,11 +8,13 @@ public class GRLVQ implements Classifier {
 
     GRLVQOptParam params;
     GRLVQOptParam init;
+    public GRLVQCostFunction cf;
     Optimizer<GRLVQOptParam> opt;
 
     public GRLVQ(LabeledDataSet ds, Optimizer<GRLVQOptParam> opt, GRLVQOptParam init) {
         this.opt = opt;
         this.init = init;
+        this.cf = new GRLVQCostFunction(ds);
         this.train(ds);
     }
 
@@ -34,7 +36,7 @@ public class GRLVQ implements Classifier {
 
     @Override
     public void train(LabeledDataSet ds) {
-        this.params = opt.optimize(new GRLVQCostFunction(ds), this.init);
+        this.params = opt.optimize(cf, this.init);
     }
 
     @Override

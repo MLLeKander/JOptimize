@@ -5,15 +5,16 @@ import java.util.*;
 public abstract class AbstractOptimizer<ParamType extends OptParam<ParamType>> implements
         Optimizer<ParamType> {
     protected List<OptObserver<ParamType>> obs = new ArrayList<OptObserver<ParamType>>();
+    protected double epsilon;
+    protected int tMax;
+    
+    public AbstractOptimizer(double epsilon, int tMax) {
+        this.epsilon = epsilon;
+        this.tMax = tMax;
+    }
 
     public void addObs(OptObserver<ParamType> ob) {
         obs.add(ob);
-    }
-
-    protected void notifyExample(ParamType params) {
-        for (OptObserver<ParamType> ob : obs) {
-            ob.notifyExample(params);
-        }
     }
 
     protected void notifyEpoch(ParamType params, double error) {
@@ -22,31 +23,26 @@ public abstract class AbstractOptimizer<ParamType extends OptParam<ParamType>> i
         }
     }
     
-    public static double pDbl(Map<String, String> params, String key) {
-        if (!params.containsKey("--"+key)) {
-            throw new IllegalArgumentException("Required argument: "+key);
-        }
-        return Double.parseDouble(params.get("--"+key));
+    @Override
+    public void init(SeparableCostFunction<ParamType> cf, ParamType initParams) {
+        
     }
     
-    public static double pDbl(Map<String, String> params, double deflt, String key) {
-        if (!params.containsKey("--"+key)) {
-            return deflt;
+    @Override
+    public ParamType optimize(SeparableCostFunction<ParamType> cf, ParamType initParams) {
+        init(cf, initParams);
+        ParamType params = initParams.copy();
+
+        double err = cf.error(params), diff = Double.MAX_VALUE;
+        for (int t = 0; t < tMax && diff >= epsilon; t++) {
+            ParamType newParams = optimizationStep(cf, params);
+            
+            diff = params.sub_s(newParams).squaredNorm();
+            err = cf.error(newParams);
+            this.notifyEpoch(newParams, err);
+            
+            params = newParams;
         }
-        return Double.parseDouble(params.get("--"+key));
-    }
-    
-    public static int pInt(Map<String, String> params, String key) {
-        if (!params.containsKey("--"+key)) {
-            throw new IllegalArgumentException("Required argument: "+key);
-        }
-        return Integer.parseInt(params.get("--"+key));
-    }
-    
-    public static int pInt(Map<String, String> params, int deflt, String key) {
-        if (!params.containsKey("--"+key)) {
-            return deflt;
-        }
-        return Integer.parseInt(params.get("--"+key));
+        return params;
     }
 }

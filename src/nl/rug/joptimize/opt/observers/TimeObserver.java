@@ -16,10 +16,4 @@ public class TimeObserver<ParamType extends OptParam<ParamType>> implements OptO
             this.isFirst = false;
         }
     }
-
-    @Override
-    public void notifyExample(ParamType params) {
-        // NOOP
-    }
-
 }
