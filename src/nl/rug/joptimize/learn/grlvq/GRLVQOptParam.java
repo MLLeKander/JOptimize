@@ -518,7 +518,7 @@ public class GRLVQOptParam implements OptParam<GRLVQOptParam> {
             String sep = "";
             for (double val : row) {
                 sb.append(sep);
-                sb.append(String.format("%.3E",val));
+                sb.append(String.format("%.3e",val));
                 sep=",";
             }
             sb.append(']');
@@ -527,7 +527,7 @@ public class GRLVQOptParam implements OptParam<GRLVQOptParam> {
         String sep = "";
         for (double val : weights) {
             sb.append(sep);
-            sb.append(String.format("%.3E", val));
+            sb.append(String.format("%.3e", val));
             sep=",";
         }
         return sb.append('}').toString();

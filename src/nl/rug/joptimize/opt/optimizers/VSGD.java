@@ -35,7 +35,7 @@ public class VSGD<ParamType extends OptParam<ParamType>> extends AbstractOptimiz
         taus = initParams.one().multiply_s(size + eps);
         hs = cf.hesseDiag(initParams).multiply_s(C/(double)size).abs_s();
         ONE = initParams.one();
-//      System.out.printf("init gs:%s\ninit vs:%s\ninit hs:%s\ntaus: %s\n", gs,vs,hs,taus);
+//        System.out.printf("init gs:%s\ninit vs:%s\ninit hs:%s\ntaus: %s\nONE: %s\n", gs,vs,hs,taus,ONE);
     }
 /*
     public ParamType optimize(SeparableCostFunction<ParamType> cf, ParamType initParams) {
@@ -111,7 +111,7 @@ public class VSGD<ParamType extends OptParam<ParamType>> extends AbstractOptimiz
           ParamType grad = cf.deriv(outParams, sampleNdx);
           ParamType hesse = cf.hesseDiag(outParams, sampleNdx);
 
-//          System.out.printf("grad:%s\nhesse:%s\n",grad,hesse);
+//          System.out.printf("grad: %s\nhesse:%s\n",grad,hesse);
           
           ParamType tauInv = taus.inv();
           ParamType tauInvComp = taus.one().sub_s(tauInv);
@@ -119,7 +119,7 @@ public class VSGD<ParamType extends OptParam<ParamType>> extends AbstractOptimiz
           // gs = tauInvComp .* gs + tauInv .* gradTmp
           gs.dotprod_s(tauInvComp).add_s(tauInv.dotprod(grad));
           // vs = tauInvComp .* vs + tauInv .* (gradTmp .^ 2)
-          vs.dotprod_s(tauInvComp).add_s(tauInv.dotprod(grad).dotprod_s(grad));
+          vs.dotprod_s(tauInvComp).add_s(tauInv.dotprod(grad).dotprod_s(grad).lbound_s(eps));
           // hs = tauInvComp .* hs + tauInv .* max(epsilon,hesse)
           hs.dotprod_s(tauInvComp).add_s(tauInv.dotprod_s(hesse.lbound_s(eps)));
           
@@ -129,11 +129,16 @@ public class VSGD<ParamType extends OptParam<ParamType>> extends AbstractOptimiz
           outParams.sub_s(grad.dotprod(learningRates));
           
           // taus = (1 - (gs.^2)./vs).*taus + 1
-          //ParamType tmp1 = vs.inv().dotprod_s(gs).dotprod_s(gs);
-          //ParamType tmp2 = tmp1.multiply_s(-1).add_s(ONE);
+//          ParamType tmp1 = vs.inv().dotprod_s(gs).dotprod_s(gs);
+//          ParamType tmp2 = tmp1.multiply_s(-1).add_s(ONE);
+//          System.out.println("taus1:"+taus);
+//          System.out.println("vs:   "+vs);
+//          System.out.println("vs':  "+vs.inv());
+//          System.out.println("tmp1: "+tmp1);
+//          System.out.println("tmp2: "+tmp2);
           taus.dotprod_s(vs.inv().dotprod_s(gs).dotprod_s(gs).multiply_s(-1).add_s(ONE)).add_s(ONE);
 
-//          System.out.printf("taus:%s\ngs:%s\nvs:%s\nhs:%s\nrates:%s\nparams:%s\n",taus,gs,vs,hs,learningRates,params);
+//          System.out.printf("taus: %s\ngs:   %s\nvs:   %s\nhs:   %s\nrates:%s\nparams:%s\n",taus,gs,vs,hs,learningRates,params);
 //          System.out.println(" --- END EXAMPLE ---");
       }
 

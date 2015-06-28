@@ -57,7 +57,7 @@ public class LVQMain {
         opt.addObs(timer);
 
         //GRLVQOptParam p = new GRLVQOptParam(new double[][]{{0,0.5},{0,-0.5}}, new double[]{1,1}, new int[]{0,1});
-        GRLVQ lvq = new GRLVQ(ds, opt);//, p);
+        GRLVQ lvq = new GRLVQ(ds, opt, 3);//, p);
         
         int err = 0;
         for (int i = 0; i < ds.size(); i++) {
@@ -68,7 +68,7 @@ public class LVQMain {
         System.out.println(err+" / "+ds.size()+", "+lvq.cf.error(lvq.getParams()));
         System.out.println(counter.getEpochCount());
         
-        //System.out.println(lvq.getParams());
+        System.out.println(lvq.getParams());
         System.out.println(timer.end - timer.start + " nanoseconds");
     }
 
