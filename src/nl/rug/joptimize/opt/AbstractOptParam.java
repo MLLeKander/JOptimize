@@ -24,4 +24,10 @@ public abstract class AbstractOptParam<ParamType extends OptParam<ParamType>> im
 
     @Override
     public ParamType multiply(double o) { return this.copy().multiply_s(o); }
+
+    @Override
+    public ParamType ubound(double o) { return this.copy().ubound_s(o); }
+
+    @Override
+    public ParamType lbound(double o) { return this.copy().lbound_s(o); }
 }
