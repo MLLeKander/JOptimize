@@ -465,6 +465,7 @@ public class GMLVQOptParam extends AbstractOptParam<GMLVQOptParam> {
                 sb.append(String.format("%.3e", val));
                 sep=",";
             }
+            sb.append('|');
         }
         return sb.append('}').toString();
     }

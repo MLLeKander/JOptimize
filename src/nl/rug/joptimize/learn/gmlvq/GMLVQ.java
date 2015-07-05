@@ -2,37 +2,35 @@ package nl.rug.joptimize.learn.gmlvq;
 
 import nl.rug.joptimize.learn.Classifier;
 import nl.rug.joptimize.learn.LabeledDataSet;
-import nl.rug.joptimize.learn.grlvq.GRLVQCostFunction;
-import nl.rug.joptimize.learn.grlvq.GRLVQOptParam;
 import nl.rug.joptimize.opt.Optimizer;
 
 public class GMLVQ implements Classifier {
 
-    GRLVQOptParam params;
-    GRLVQOptParam init;
-    public GRLVQCostFunction cf;
-    Optimizer<GRLVQOptParam> opt;
+    GMLVQOptParam params;
+    GMLVQOptParam init;
+    public GMLVQCostFunction cf;
+    Optimizer<GMLVQOptParam> opt;
 
-    public GMLVQ(LabeledDataSet ds, Optimizer<GRLVQOptParam> opt, GRLVQOptParam init) {
+    public GMLVQ(LabeledDataSet ds, Optimizer<GMLVQOptParam> opt, GMLVQOptParam init) {
         this.opt = opt;
         this.init = init;
-        this.cf = new GRLVQCostFunction(ds);
+        this.cf = new GMLVQCostFunction(ds);
         this.train(ds);
     }
 
-    public GMLVQ(LabeledDataSet ds, Optimizer<GRLVQOptParam> opt) {
-        this(ds, opt, new GRLVQOptParam(ds));
+    public GMLVQ(LabeledDataSet ds, Optimizer<GMLVQOptParam> opt) {
+        this(ds, opt, new GMLVQOptParam(ds));
     }
 
-    public GMLVQ(LabeledDataSet ds, Optimizer<GRLVQOptParam> opt, int prototypesPerClass) {
-        this(ds, opt, new GRLVQOptParam(prototypesPerClass, ds));
+    public GMLVQ(LabeledDataSet ds, Optimizer<GMLVQOptParam> opt, int prototypesPerClass) {
+        this(ds, opt, new GMLVQOptParam(prototypesPerClass, ds));
     }
 
-    public GMLVQ(LabeledDataSet ds, Optimizer<GRLVQOptParam> opt, int[] prototypesPerClass) {
-        this(ds, opt, new GRLVQOptParam(prototypesPerClass, ds));
+    public GMLVQ(LabeledDataSet ds, Optimizer<GMLVQOptParam> opt, int[] prototypesPerClass) {
+        this(ds, opt, new GMLVQOptParam(prototypesPerClass, ds));
     }
 
-    public void setInit(GRLVQOptParam init) {
+    public void setInit(GMLVQOptParam init) {
         this.init = init;
     }
 
@@ -50,7 +48,7 @@ public class GMLVQ implements Classifier {
         return params.getClosestProtoLabel(data);
     }
 
-    public GRLVQOptParam getParams() {
+    public GMLVQOptParam getParams() {
         return this.params;
     }
 }
