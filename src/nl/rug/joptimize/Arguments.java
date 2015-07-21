@@ -23,8 +23,6 @@ public class Arguments {
             }
         }
         defaultArg = sb.length() > 0 ? sb.toString() : null;
-        System.out.println("Args: "+argMap);
-        System.out.println("DefArg: "+defaultArg);
     }
     
     public String keyLiteral(String key) {

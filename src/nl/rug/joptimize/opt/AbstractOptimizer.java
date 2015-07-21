@@ -7,6 +7,8 @@ public abstract class AbstractOptimizer<ParamType extends OptParam<ParamType>> i
     protected List<OptObserver<ParamType>> obs = new ArrayList<OptObserver<ParamType>>();
     protected double epsilon;
     protected int tMax;
+
+    public AbstractOptimizer() {  }
     
     public AbstractOptimizer(double epsilon, int tMax) {
         this.epsilon = epsilon;

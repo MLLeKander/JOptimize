@@ -12,7 +12,7 @@ public class GMLVQOptParam extends AbstractOptParam<GMLVQOptParam> {
     public double[][] prototypes;
     public double[][] weights;
     public int[] labels;
-    public static final Random rand = new Random(1);
+    public static final Random rand = new Random();
 
     public GMLVQOptParam(double[][] prototypes, double[][] weights, int[] labels) {
         this.prototypes = prototypes;
@@ -66,21 +66,21 @@ public class GMLVQOptParam extends AbstractOptParam<GMLVQOptParam> {
         for (int i : ppc) {
             protoCount += i;
         }
-        
+
         this.prototypes = new double[protoCount][dimensions];
         for (double[] row : prototypes) {
             for (int i = 0; i < row.length; i++) {
-                row[i] += (rand.nextDouble()-0.5)/100;
+                row[i] += (rand.nextDouble() - 0.5) / 100;
             }
         }
-        
+
         this.labels = new int[protoCount];
         for (int i = 0, ndx = 0; i < ppc.length; i++) {
             for (int j = 0; j < ppc[i]; j++) {
                 this.labels[ndx++] = i;
             }
         }
-        
+
         this.weights = new double[dimensions][dimensions];
         for (int i = 0; i < dimensions; i++) {
             this.weights[i][i] = 1;
@@ -320,7 +320,7 @@ public class GMLVQOptParam extends AbstractOptParam<GMLVQOptParam> {
         }
         return this;
     }
-    
+
     @Override
     public GMLVQOptParam lbound_s(double o) {
         int protos = this.numProtos(), dims = this.dimensions(), weights = this.numWeights();
@@ -340,7 +340,7 @@ public class GMLVQOptParam extends AbstractOptParam<GMLVQOptParam> {
         }
         return this;
     }
-    
+
     @Override
     public GMLVQOptParam ubound_s(double o) {
         int protos = this.numProtos(), dims = this.dimensions(), weights = this.numWeights();
@@ -396,12 +396,12 @@ public class GMLVQOptParam extends AbstractOptParam<GMLVQOptParam> {
         double out = 0;
         for (double[] row : this.prototypes) {
             for (double d : row) {
-                out += d*d;
+                out += d * d;
             }
         }
         for (double[] row : this.weights) {
             for (double d : row) {
-                out += d*d;
+                out += d * d;
             }
         }
         return out;
@@ -425,6 +425,31 @@ public class GMLVQOptParam extends AbstractOptParam<GMLVQOptParam> {
             }
             out += tmp * tmp;
         }
+        // double diff = out-distO(ndx,data);
+        // if (diff > 1e-8) {
+        // System.err.println("PROBLEM!!! "+diff);
+        // }
+        return out;
+    }
+
+    private double distO(int ndx, double[] data) {
+        int dims = this.dimensions();
+        double[] diff = new double[dims];
+        double[] proto = this.prototypes[ndx];
+        for (int i = 0; i < dims; i++) {
+            diff[i] = proto[i] - data[i];
+        }
+        double[] tmp = new double[dims];
+        double[][] omega = this.omega();
+        for (int i = 0; i < dims; i++) {
+            for (int j = 0; j < dims; j++) {
+                tmp[i] += diff[j] * omega[i][j];
+            }
+        }
+        double out = 0;
+        for (int i = 0; i < dims; i++) {
+            out += tmp[i] * diff[i];
+        }
         return out;
     }
 
@@ -444,6 +469,27 @@ public class GMLVQOptParam extends AbstractOptParam<GMLVQOptParam> {
         return out;
     }
 
+    public double rowMult(int a, int b) {
+        int w = this.numWeights();
+        double out = 0;
+        for (int i = 0; i < w; i++) {
+            out += this.weights[i][a] * this.weights[i][b];
+        }
+        return out;
+    }
+
+    public double[][] omega() {
+        int dims = this.dimensions();
+        double[][] out = new double[dims][dims];
+        for (int i = 0; i < dims; i++) {
+            for (int j = 0; j < dims; j++) {
+                out[i][j] = rowMult(i, j);
+            }
+        }
+
+        return out;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("[");
@@ -452,8 +498,8 @@ public class GMLVQOptParam extends AbstractOptParam<GMLVQOptParam> {
             String sep = "";
             for (double val : row) {
                 sb.append(sep);
-                sb.append(String.format("%.3e",val));
-                sep=",";
+                sb.append(String.format("%.3e", val));
+                sep = ",";
             }
             sb.append(']');
         }
@@ -463,9 +509,21 @@ public class GMLVQOptParam extends AbstractOptParam<GMLVQOptParam> {
             for (double val : row) {
                 sb.append(sep);
                 sb.append(String.format("%.3e", val));
-                sep=",";
+                sep = ",";
             }
             sb.append('|');
+            sep = "";
+        }
+        sb.append("} {");
+        sep = "";
+        for (double[] row : omega()) {
+            for (double val : row) {
+                sb.append(sep);
+                sb.append(String.format("%.3e", val));
+                sep = ",";
+            }
+            sb.append('|');
+            sep = "";
         }
         return sb.append('}').toString();
     }

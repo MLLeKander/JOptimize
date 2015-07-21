@@ -46,7 +46,7 @@ public class GMLVQMain {
                             err++;
                         }
                     }
-                    System.out.println(t+": "+err+" / "+ds.size()+", "+error + " | "+params);
+                    System.out.println(t+": "+err+"/"+ds.size()+", "+String.format("%.3f",error));
                 }
             }
         });
@@ -65,7 +65,7 @@ public class GMLVQMain {
                 err++;
             }
         }
-        System.out.println(err+" / "+ds.size()+", "+lvq.cf.error(lvq.getParams()));
+        System.out.println(err+"/"+ds.size()+", "+lvq.cf.error(lvq.getParams()));
         System.out.println(counter.getEpochCount());
         
         System.out.println(lvq.getParams());
