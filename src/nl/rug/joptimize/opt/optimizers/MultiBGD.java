@@ -9,6 +9,7 @@ import nl.rug.joptimize.opt.SeparableCostFunction;
 public class MultiBGD<ParamType extends OptParam<ParamType>> extends
         AbstractOptimizer<ParamType> {
     protected double[] learningRates;
+    public double minErr, minRate;
     
     public MultiBGD(Collection<Double> learningRates, double epsilon, int tMax) {
         super(epsilon, tMax);
@@ -28,8 +29,8 @@ public class MultiBGD<ParamType extends OptParam<ParamType>> extends
     public ParamType optimizationStep(SeparableCostFunction<ParamType> cf, ParamType params) {
         ParamType grad = cf.deriv(params);
         ParamType minParams = null;
-        double minErr = Double.MAX_VALUE;
-        double minRate = 0;
+        minErr = Double.MAX_VALUE;
+        minRate = 0;
         for (double learningRate : learningRates) {
             ParamType tmpParams = grad.multiply(-learningRate).add_s(params);
             double tmpErr = cf.error(tmpParams);
@@ -40,7 +41,6 @@ public class MultiBGD<ParamType extends OptParam<ParamType>> extends
             }
             //System.out.printf("%.2f:%.4f ",learningRate,tmpErr);
         }
-        System.out.println("\nminRate: "+minRate);
         return minParams;
     }
 }

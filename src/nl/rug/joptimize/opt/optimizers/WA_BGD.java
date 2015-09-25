@@ -59,9 +59,4 @@ public class WA_BGD<ParamType extends OptParam<ParamType>> extends
         hist.add(outParams.copy());
         return outParams;
     }
-    
-    @Override
-    public String toString() {
-        return String.format("%s (nu=%.2f,ep=%.2f,tMax=%d,hist=%d,loss=%.2f,gain=%.2f)", this.getClass().getSimpleName(),initLearningRate,epsilon,tMax,histSize,loss,gain);
-    }
 }

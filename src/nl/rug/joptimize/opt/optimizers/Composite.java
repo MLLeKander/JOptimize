@@ -8,9 +8,10 @@ import nl.rug.joptimize.opt.Optimizer;
 import nl.rug.joptimize.opt.SeparableCostFunction;
 
 public class Composite<ParamType extends OptParam<ParamType>> extends AbstractOptimizer<ParamType> {
-    private Collection<Optimizer<ParamType>> bases;
+    private Collection<? extends Optimizer<ParamType>> bases;
 
-    public Composite(Collection<Optimizer<ParamType>> bases) {
+    public Composite(Collection<? extends Optimizer<ParamType>> bases, double epsilon, int tMax) {
+        super(epsilon, tMax);
         this.bases = bases;
     }
 
@@ -18,14 +19,17 @@ public class Composite<ParamType extends OptParam<ParamType>> extends AbstractOp
     public ParamType optimizationStep(SeparableCostFunction<ParamType> cf, ParamType params) {
         ParamType minParams = null;
         double minErr = Double.MAX_VALUE;
+        Optimizer<?> opt = null;
         for (Optimizer<ParamType> base : bases) {
             ParamType tmpParams = base.optimizationStep(cf, params);
             double tmpErr = cf.error(tmpParams);
             if (tmpErr <= minErr) {
                 minParams = tmpParams;
                 minErr = tmpErr;
+                opt = base;
             }
         }
+        System.out.println("Best optimizer="+opt+", err="+minErr);
         return minParams;
     }
 

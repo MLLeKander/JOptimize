@@ -432,26 +432,26 @@ public class GMLVQOptParam extends AbstractOptParam<GMLVQOptParam> {
         return out;
     }
 
-    private double distO(int ndx, double[] data) {
-        int dims = this.dimensions();
-        double[] diff = new double[dims];
-        double[] proto = this.prototypes[ndx];
-        for (int i = 0; i < dims; i++) {
-            diff[i] = proto[i] - data[i];
-        }
-        double[] tmp = new double[dims];
-        double[][] omega = this.omega();
-        for (int i = 0; i < dims; i++) {
-            for (int j = 0; j < dims; j++) {
-                tmp[i] += diff[j] * omega[i][j];
-            }
-        }
-        double out = 0;
-        for (int i = 0; i < dims; i++) {
-            out += tmp[i] * diff[i];
-        }
-        return out;
-    }
+//    private double distO(int ndx, double[] data) {
+//        int dims = this.dimensions();
+//        double[] diff = new double[dims];
+//        double[] proto = this.prototypes[ndx];
+//        for (int i = 0; i < dims; i++) {
+//            diff[i] = proto[i] - data[i];
+//        }
+//        double[] tmp = new double[dims];
+//        double[][] omega = this.omega();
+//        for (int i = 0; i < dims; i++) {
+//            for (int j = 0; j < dims; j++) {
+//                tmp[i] += diff[j] * omega[i][j];
+//            }
+//        }
+//        double out = 0;
+//        for (int i = 0; i < dims; i++) {
+//            out += tmp[i] * diff[i];
+//        }
+//        return out;
+//    }
 
     private double dist(int ndx, double[] data, double minDist) {
         double[] proto = this.prototypes[ndx];
@@ -492,39 +492,33 @@ public class GMLVQOptParam extends AbstractOptParam<GMLVQOptParam> {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder("[");
+        StringBuilder sb = new StringBuilder();
+//        sb.append(prototypes.length+","+prototypes[0].length+"\n");
+        String rowSep = "";
         for (double[] row : prototypes) {
-            sb.append('[');
+            sb.append(rowSep);
+            rowSep = "/";
             String sep = "";
             for (double val : row) {
                 sb.append(sep);
-                sb.append(String.format("%.3e", val));
+                sb.append(String.format("%.3f",val));
                 sep = ",";
             }
-            sb.append(']');
         }
-        sb.append("] {");
-        String sep = "";
+
+        sb.append("\n");
+//        sb.append(weights.length+","+weights[0].length+"\n");
+        rowSep = "";
         for (double[] row : weights) {
+            sb.append(rowSep);
+            rowSep = "/";
+            String sep = "";
             for (double val : row) {
                 sb.append(sep);
-                sb.append(String.format("%.3e", val));
+                sb.append(String.format("%.3f",val));
                 sep = ",";
             }
-            sb.append('|');
-            sep = "";
         }
-        sb.append("} {");
-        sep = "";
-        for (double[] row : omega()) {
-            for (double val : row) {
-                sb.append(sep);
-                sb.append(String.format("%.3e", val));
-                sep = ",";
-            }
-            sb.append('|');
-            sep = "";
-        }
-        return sb.append('}').toString();
+        return sb.toString();
     }
 }

@@ -99,4 +99,25 @@ public class LabeledDataSet {
 
         return new LabeledDataSet(dataArr, labelsArr);
     }
+    
+    public double[][] averageProtos() {
+        int classes = this.classes(), dims = this.dimensions(), size = this.size();
+        double[][] protos = new double[classes][dims];
+        int[] counts = new int[classes];
+        for (int i = 0; i < size; i++) {
+            double[] row = this.getData(i);
+            int label = this.getLabel(i);
+            counts[label]++;
+            for (int j = 0; j < dims; j++) {
+                protos[label][j] += row[j];
+            }
+        }
+        
+        for (int i = 0; i < classes; i++) {
+            for (int j = 0; j < dims; j++) {
+                protos[i][j] /= counts[i];
+            }
+        }
+        return protos;
+    }
 }

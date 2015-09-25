@@ -40,6 +40,7 @@ public abstract class AbstractOptimizer<ParamType extends OptParam<ParamType>> i
             ParamType newParams = optimizationStep(cf, params);
             
             diff = params.sub_s(newParams).squaredNorm();
+            //System.out.print(diff+",");
             err = cf.error(newParams);
             this.notifyEpoch(newParams, err);
             
