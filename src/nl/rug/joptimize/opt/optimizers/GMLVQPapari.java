@@ -1,7 +1,6 @@
 package nl.rug.joptimize.opt.optimizers;
 
 import java.util.ArrayDeque;
-import java.util.Arrays;
 
 import nl.rug.joptimize.learn.gmlvq.GMLVQOptParam;
 import nl.rug.joptimize.opt.AbstractOptimizer;
@@ -17,6 +16,7 @@ public class GMLVQPapari extends AbstractOptimizer<GMLVQOptParam> {
     private ArrayDeque<GMLVQOptParam> hist;
     private double loss;
     private double gain;
+    private double prevErr = Double.MAX_VALUE;
     
     public GMLVQPapari(double initProtoLearningRate, double initMatrixLearningRate, int histSize, double loss, double gain, double epsilon, int tMax) {
         super(epsilon, tMax);
@@ -39,7 +39,10 @@ public class GMLVQPapari extends AbstractOptimizer<GMLVQOptParam> {
         GMLVQOptParam grad = cf.deriv(params);
         normalize(grad.prototypes);
         normalize(grad.weights);
-        System.out.println("Grad: "+grad);
+        return grad;
+    }
+    
+    private GMLVQOptParam weightedGrad(GMLVQOptParam grad) {
         for (int i = 0; i < grad.prototypes.length; i++) {
             for (int j = 0; j < grad.prototypes[i].length; j++) {
                 grad.prototypes[i][j] *= -protoLearningRate;
@@ -70,9 +73,12 @@ public class GMLVQPapari extends AbstractOptimizer<GMLVQOptParam> {
 
     @Override
     public GMLVQOptParam optimizationStep(SeparableCostFunction<GMLVQOptParam> cf, GMLVQOptParam params) {
-        System.out.println("Params: "+params);
+//        System.out.println("Params: "+params);
+//        GMLVQOptParam grad = cf.deriv(params);
         GMLVQOptParam grad = normalizedGrad(cf,params);
-        GMLVQOptParam outParams = grad.add_s(params);
+        System.out.println("Params: "+params);
+        System.out.println("Grad: "+grad);
+        GMLVQOptParam outParams = weightedGrad(grad).add_s(params);
         
         if (hist.size() >= histSize-1) {
             GMLVQOptParam waypointAvg = outParams.zero();
@@ -80,34 +86,52 @@ public class GMLVQPapari extends AbstractOptimizer<GMLVQOptParam> {
                 waypointAvg.add_s(p);
             }
             waypointAvg.multiply_s(histInv);
-//            System.out.println("outParams: "+outParams);
-//            System.out.println("waypointAvg: "+waypointAvg);
-            GMLVQOptParam protoAvg;
-            GMLVQOptParam matrixAvg;
+            GMLVQOptParam protoAvg = new GMLVQOptParam(waypointAvg.prototypes, outParams.weights, outParams.labels);
+            GMLVQOptParam matrixAvg = new GMLVQOptParam(outParams.prototypes, waypointAvg.weights, outParams.labels);
 
             matrixLearningRate *= gain;
             protoLearningRate *= gain;
 
-            double err = cf.error(outParams);
-            if (cf.error(waypointAvg) < err) {
+            double err = cf.error(outParams), errAvg, errAvgP, errAvgM;
+            System.out.println("tmpParams: "+outParams+", "+err);
+            err = Math.min(err, errAvg=cf.error(waypointAvg));
+            err = Math.min(err, errAvgP=cf.error(protoAvg));
+            err = Math.min(err, errAvgM=cf.error(protoAvg));
+            System.out.println("WA  : "+waypointAvg+", "+errAvg);
+            System.out.println("WA_p: "+protoAvg+", "+errAvgP);
+            System.out.println("WA_m: "+matrixAvg+", "+errAvgM);
+            if (errAvg == err) {
                 // Average prototypes and matrix
+                System.out.println("WA wins");
                 matrixLearningRate /= loss;
                 protoLearningRate /= loss;
                 outParams = waypointAvg;
-                System.out.println("WA1");
-            } else if (cf.error(protoAvg = new GMLVQOptParam(waypointAvg.prototypes, outParams.weights, outParams.labels)) < err) {
+//                System.out.println("WA1");
+            } else if (errAvgP == err) {
                 // Average prototypes, normal step matrix
+                System.out.println("WA_p wins");
                 protoLearningRate /= loss;
                 outParams = protoAvg;
-                System.out.println("WA_Proto");
-            } else if (cf.error(matrixAvg = new GMLVQOptParam(outParams.prototypes, waypointAvg.weights, outParams.labels)) < err) {
+//                System.out.println("WA_Proto");
+            } else if (errAvgM == err) {
                 // Average matrix, normal step prototypes
+                System.out.println("WA_m wins");
                 matrixLearningRate /= loss;
                 outParams = matrixAvg;
-                System.out.println("WA_Matrix");
+//                System.out.println("WA_Matrix");
+            } else if (prevErr < err) {
+                System.out.println("Oops, went too far.");
+                matrixLearningRate /= loss;
+                protoLearningRate /= loss;
+            } else {
+                System.out.println("Normal step wins.");
             }
             hist.remove();
+            
+            prevErr = err;
         }
+        normalize(outParams.weights);
+//        System.out.printf("mrate:%f, prate:%f\n",matrixLearningRate,protoLearningRate);
         hist.add(outParams.copy());
         return outParams;
     }

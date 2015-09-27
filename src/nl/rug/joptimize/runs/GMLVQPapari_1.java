@@ -55,7 +55,7 @@ public class GMLVQPapari_1 {
                             classificationErr++;
                         }
                     }
-                    System.out.printf("%d,%d,%d,%f\n",t,System.nanoTime()-startTime,classificationErr,cfError);
+                    System.out.printf("%d,%d,%d,%f\n",t,System.nanoTime()-startTime,classificationErr,cfError/ds.size());
                 }
             }
         });
@@ -63,7 +63,7 @@ public class GMLVQPapari_1 {
         CountObserver<GMLVQOptParam> counter = new CountObserver<>();
         opt.addObs(counter);
         
-        GMLVQOptParam p = new GMLVQOptParam(ds.averageProtos(), new int[]{0,1});
+        GMLVQOptParam p = new GMLVQOptParam(ds.averageProtos(), new int[]{0,1,2,3,4,5,6});
         GMLVQ lvq = new GMLVQ(ds, opt, p);
         
         int err = 0;
@@ -72,7 +72,7 @@ public class GMLVQPapari_1 {
                 err++;
             }
         }
-        System.out.printf("%d,%d,%d,%f\n",counter.getEpochCount(),System.nanoTime()-startTime,err,lvq.cf.error(lvq.getParams()));
+        System.out.printf("%d,%d,%d,%f\n",counter.getEpochCount(),System.nanoTime()-startTime,err,lvq.cf.error(lvq.getParams())/ds.size());
         
         System.out.println(lvq.getParams());
 

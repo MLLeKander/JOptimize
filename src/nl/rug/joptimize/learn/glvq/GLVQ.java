@@ -2,6 +2,7 @@ package nl.rug.joptimize.learn.glvq;
 
 import nl.rug.joptimize.learn.Classifier;
 import nl.rug.joptimize.learn.LabeledDataSet;
+import nl.rug.joptimize.learn.grlvq.GRLVQCostFunction;
 import nl.rug.joptimize.opt.Optimizer;
 
 public class GLVQ implements Classifier {
@@ -9,10 +10,12 @@ public class GLVQ implements Classifier {
     GLVQOptParam params;
     GLVQOptParam init;
     Optimizer<GLVQOptParam> opt;
+    public GLVQCostFunction cf;
 
     public GLVQ(LabeledDataSet ds, Optimizer<GLVQOptParam> opt, GLVQOptParam init) {
         this.opt = opt;
         this.init = init;
+        cf = new GLVQCostFunction(ds);
         this.train(ds);
     }
 

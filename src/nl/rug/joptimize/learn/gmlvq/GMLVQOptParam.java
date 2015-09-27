@@ -32,6 +32,13 @@ public class GMLVQOptParam extends AbstractOptParam<GMLVQOptParam> {
         }
     }
 
+    public GMLVQOptParam(double[][] prototypes, int classes) {
+        int[] ppc = new int[classes];
+        Arrays.fill(ppc, 1);
+        init(ppc, prototypes[0].length);
+        this.prototypes = prototypes;
+    }
+
     public GMLVQOptParam(int classes, int dimensions) {
         int[] ppc = new int[classes];
         Arrays.fill(ppc, 1);
@@ -83,7 +90,7 @@ public class GMLVQOptParam extends AbstractOptParam<GMLVQOptParam> {
 
         this.weights = new double[dimensions][dimensions];
         for (int i = 0; i < dimensions; i++) {
-            this.weights[i][i] = 1;
+            this.weights[i][i] = 1 / dimensions;
         }
     }
 
@@ -506,7 +513,7 @@ public class GMLVQOptParam extends AbstractOptParam<GMLVQOptParam> {
             }
         }
 
-        sb.append("\n");
+        sb.append("\\\\");
 //        sb.append(weights.length+","+weights[0].length+"\n");
         rowSep = "";
         for (double[] row : weights) {
