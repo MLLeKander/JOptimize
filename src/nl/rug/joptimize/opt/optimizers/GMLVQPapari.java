@@ -30,6 +30,7 @@ public class GMLVQPapari extends AbstractOptimizer<GMLVQOptParam> {
     
     @Override
     public void init(SeparableCostFunction<GMLVQOptParam> cf, GMLVQOptParam initParams) {
+    	super.init(cf, initParams);
         this.protoLearningRate = initProtoLearningRate;
         this.matrixLearningRate = initMatrixLearningRate;
         this.hist = new ArrayDeque<>(histSize);
@@ -76,8 +77,8 @@ public class GMLVQPapari extends AbstractOptimizer<GMLVQOptParam> {
 //        System.out.println("Params: "+params);
 //        GMLVQOptParam grad = cf.deriv(params);
         GMLVQOptParam grad = normalizedGrad(cf,params);
-        System.out.println("Params: "+params);
-        System.out.println("Grad: "+grad);
+//        System.out.println("Params: "+params);
+//        System.out.println("Grad: "+grad);
         GMLVQOptParam outParams = weightedGrad(grad).add_s(params);
         
         if (hist.size() >= histSize-1) {
@@ -93,38 +94,32 @@ public class GMLVQPapari extends AbstractOptimizer<GMLVQOptParam> {
             protoLearningRate *= gain;
 
             double err = cf.error(outParams), errAvg, errAvgP, errAvgM;
-            System.out.println("tmpParams: "+outParams+", "+err);
+//            System.out.println("tmpParams: "+outParams+", "+err);
             err = Math.min(err, errAvg=cf.error(waypointAvg));
             err = Math.min(err, errAvgP=cf.error(protoAvg));
             err = Math.min(err, errAvgM=cf.error(protoAvg));
-            System.out.println("WA  : "+waypointAvg+", "+errAvg);
-            System.out.println("WA_p: "+protoAvg+", "+errAvgP);
-            System.out.println("WA_m: "+matrixAvg+", "+errAvgM);
             if (errAvg == err) {
                 // Average prototypes and matrix
-                System.out.println("WA wins");
+//                System.out.println("WA wins");
                 matrixLearningRate /= loss;
                 protoLearningRate /= loss;
                 outParams = waypointAvg;
-//                System.out.println("WA1");
             } else if (errAvgP == err) {
                 // Average prototypes, normal step matrix
-                System.out.println("WA_p wins");
+//                System.out.println("WA_p wins");
                 protoLearningRate /= loss;
                 outParams = protoAvg;
-//                System.out.println("WA_Proto");
             } else if (errAvgM == err) {
                 // Average matrix, normal step prototypes
-                System.out.println("WA_m wins");
+//                System.out.println("WA_m wins");
                 matrixLearningRate /= loss;
                 outParams = matrixAvg;
-//                System.out.println("WA_Matrix");
             } else if (prevErr < err) {
-                System.out.println("Oops, went too far.");
+//                System.out.println("Normal step wins... oops, went too far.");
                 matrixLearningRate /= loss;
                 protoLearningRate /= loss;
             } else {
-                System.out.println("Normal step wins.");
+//                System.out.println("Normal step wins.");
             }
             hist.remove();
             

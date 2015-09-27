@@ -2,11 +2,13 @@ package nl.rug.joptimize.opt;
 
 import nl.rug.joptimize.Arguments;
 import nl.rug.joptimize.opt.optimizers.BGD;
+import nl.rug.joptimize.opt.optimizers.ControlledBGD;
+import nl.rug.joptimize.opt.optimizers.ControlledSGD;
 import nl.rug.joptimize.opt.optimizers.SGD;
+import nl.rug.joptimize.opt.optimizers.VSGD;
 import nl.rug.joptimize.opt.optimizers.WA_BGD;
 import nl.rug.joptimize.opt.optimizers.WA_SGD;
 import nl.rug.joptimize.opt.optimizers.WaypointAverage;
-import nl.rug.joptimize.opt.optimizers.VSGD;
 
 public class OptimizerFactory {
     public static <ParamType extends OptParam<ParamType>> AbstractOptimizer<ParamType> createOptimizer(Arguments args) {
@@ -29,6 +31,10 @@ public class OptimizerFactory {
             return createWASGD(args);
         } else if (name.equals("WA")) {
             return createWA(args);
+        } else if (name.equals("CONTROLLEDBGD")) {
+            return createControlledBGD(args);
+        } else if (name.equals("CONTROLLEDSGD")) {
+            return createControlledSGD(args);
         }
         throw new IllegalArgumentException("Unknown optimizer: "+name);
     }
@@ -56,5 +62,13 @@ public class OptimizerFactory {
     public static <ParamType extends OptParam<ParamType>> WaypointAverage<ParamType> createWA(Arguments a) {
         AbstractOptimizer<ParamType> base = createFromName(a.get("base"), a);
         return new WaypointAverage<>(base,a.getInt("hist"),a.getDbl("epsilon"),a.getInt("tmax"));
+    }
+    
+    public static <ParamType extends OptParam<ParamType>> ControlledBGD<ParamType> createControlledBGD(Arguments a) {
+        return new ControlledBGD<>(a.getDbl("rate"),a.getDbl("loss"),a.getDbl("gain"),a.getDbl("epsilon"),a.getInt("tmax"));
+    }
+    
+    public static <ParamType extends OptParam<ParamType>> ControlledSGD<ParamType> createControlledSGD(Arguments a) {
+        return new ControlledSGD<>(a.getLong("seed", 1),a.getDbl("rate"),a.getDbl("loss"),a.getDbl("gain"),a.getDbl("epsilon"),a.getInt("tmax"));
     }
 }

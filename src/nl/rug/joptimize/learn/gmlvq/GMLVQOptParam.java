@@ -46,7 +46,7 @@ public class GMLVQOptParam extends AbstractOptParam<GMLVQOptParam> {
     }
 
     public GMLVQOptParam(LabeledDataSet ds) {
-        this(ds.classes(), ds.dimensions());
+        this(ds.averageProtos(), ds.labels());
     }
 
     public GMLVQOptParam(int prototypesPerClass, int classes, int dimensions) {

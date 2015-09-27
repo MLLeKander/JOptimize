@@ -26,7 +26,7 @@ public class Arguments {
     }
     
     public String keyLiteral(String key) {
-        return "--"+key;
+        return "--"+key.toLowerCase();
     }
     
     private String get_(String key) {
@@ -76,6 +76,17 @@ public class Arguments {
         return Double.parseDouble(s);
     }
     
+    public boolean getBool(String key) {
+        String s = get_(key);
+        if (s == null) throw new IllegalArgumentException("Could not find required double key: "+key);
+        return Boolean.parseBoolean(s);
+    }
+
+    public boolean getBool(String key, boolean def) {
+        String s = get_(key);
+        return s == null ? def : Boolean.parseBoolean(s);
+    }
+    
     public double getDbl(String key, double def) {
         String s = get_(key);
         return s == null ? def : Double.parseDouble(s);
@@ -88,5 +99,14 @@ public class Arguments {
     public String getDefault() {
         if (defaultArg == null) throw new IllegalArgumentException("Could not find required default key.");
         return defaultArg;
+    }
+    
+    public String toString() {
+    	String argStr = argMap.toString().replaceAll("[{},]","").replaceAll("="," ");
+    	if (hasDefault()) {
+    		return argStr;
+    	} else {
+    		return getDefault()+" "+argStr;
+    	}
     }
 }

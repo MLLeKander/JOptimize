@@ -10,6 +10,7 @@ public class LabeledDataSet {
     private double[][] data;
     private int[] labels;
     private int maxLabel;
+    private final static double EPS = 1e-10;
 
     public LabeledDataSet(double[][] data, int[] labels) {
         this.data = data;
@@ -120,4 +121,71 @@ public class LabeledDataSet {
         }
         return protos;
     }
+    
+    public int[] labels() {
+    	int[] out = new int[classes()];
+    	for (int i = 0; i < classes(); i++) {
+    		out[i] = i;
+    	}
+    	return out;
+    }
+    
+    public LabeledDataSet zscore() {
+    	return zscore(true);
+    }
+        
+    public LabeledDataSet zscore(boolean discardEmpty) {
+	    int dims = this.dimensions(), size = this.size();
+		double[] means = new double[dims];
+		for (double[] row : data) {
+			for (int i = 0; i < dims; i++) {
+				means[i] += row[i];
+			}
+		}
+		for (int i = 0; i < dims; i++) {
+			means[i] /= size;
+		}
+		
+		double[] vars = new double[dims];
+		for (double[] row : data) {
+			for (int i = 0; i < dims; i++) {
+				double tmp = row[i] - means[i];
+				vars[i] += tmp*tmp;
+			}
+		}
+		
+		int holes = 0;
+		for (int i = 0; i < dims; i++) {
+			vars[i] = Math.sqrt(vars[i]);
+			if (vars[i] < EPS && !discardEmpty) {
+				throw new IllegalArgumentException("Feature "+i+" has (near-)zero variance.");
+			}
+			holes++;
+		}
+		
+		if (holes > 0) {
+			System.err.println("Removing "+holes+" holes.");
+		}
+		
+		double[][] newData = zscoreCopy(holes, means, vars);
+		return new LabeledDataSet(newData, this.labels);
+    }
+    
+    private double[][] zscoreCopy(int holes, double[] means, double[] vars) {
+	    int dims = this.dimensions(), size = this.size();
+    	double[][] out = new double[size-holes][dims];
+    	for (int i = 0; i < size; i++) {
+    		int outNdx = 0;
+    		for (int j = 0; j < dims; j++) {
+    			if (vars[j] < EPS) {
+    				continue;
+    			}
+    			
+    			out[i][outNdx] = (data[i][j]-means[j])/vars[j];
+    			outNdx++;
+    		}
+    	}
+    	return out;
+    }
+    
 }

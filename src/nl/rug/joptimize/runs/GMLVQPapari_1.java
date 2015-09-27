@@ -1,9 +1,10 @@
-// java -cp bin nl.rug.joptimize.runs.GMLVQPapari_1 segment.dat  --epsilon 1e-5 --tmax 10000 --freq 5 --opt GMLVQPapari
+// java -cp bin nl.rug.joptimize.runs.GMLVQPapari_1 segment.dat  --epsilon 1e-5 --tmax 10000 --freq 5 --opt GMLVQPapari --hist 3
 // java -cp bin nl.rug.joptimize.runs.GMLVQPapari_1 segment.dat  --epsilon 1e-5 --tmax 10000 --freq 5 --opt vsgd
 package nl.rug.joptimize.runs;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.PrintStream;
 
 import nl.rug.joptimize.Arguments;
 import nl.rug.joptimize.learn.LabeledDataSet;
@@ -32,13 +33,26 @@ public class GMLVQPapari_1 {
         }
     }
     
+    public static void ensureDir(String path) {
+    	new File(path).mkdir();
+    }
+    
     public static void main(String[] argArr) throws FileNotFoundException {
         Arguments args = new Arguments(argArr);
         if (!args.hasDefault()) {
             System.err.println("No data file given.");
             return;
         }
-        final LabeledDataSet ds = LabeledDataSet.parseDataFile(new File(args.getDefault()));
+
+        String outDir = args.get("outdir");
+        ensureDir(outDir);
+        final PrintStream run = new PrintStream(new File(outDir, "run.txt"));
+        final PrintStream trained = new PrintStream(new File(outDir, "trained.txt"));
+        final PrintStream init = new PrintStream(new File(outDir, "init.txt"));
+        init.println("java "+GMLVQPapari_1.class.getCanonicalName()+" "+args.toString());
+        
+        LabeledDataSet dsTmp = LabeledDataSet.parseDataFile(new File(args.getDefault()));
+        final LabeledDataSet ds = args.getBool("zscore",false) ? dsTmp.zscore() : dsTmp;
         AbstractOptimizer<GMLVQOptParam> opt = getOpt(args, ds);
         
         final int freq = args.getInt("freq", 50);
@@ -55,7 +69,7 @@ public class GMLVQPapari_1 {
                             classificationErr++;
                         }
                     }
-                    System.out.printf("%d,%d,%d,%f\n",t,System.nanoTime()-startTime,classificationErr,cfError/ds.size());
+                    run.printf("%d,%d,%d,%f\n",t,System.nanoTime()-startTime,classificationErr,cfError/ds.size());
                 }
             }
         });
@@ -63,7 +77,7 @@ public class GMLVQPapari_1 {
         CountObserver<GMLVQOptParam> counter = new CountObserver<>();
         opt.addObs(counter);
         
-        GMLVQOptParam p = new GMLVQOptParam(ds.averageProtos(), new int[]{0,1,2,3,4,5,6});
+        GMLVQOptParam p = new GMLVQOptParam(ds);
         GMLVQ lvq = new GMLVQ(ds, opt, p);
         
         int err = 0;
@@ -72,9 +86,9 @@ public class GMLVQPapari_1 {
                 err++;
             }
         }
-        System.out.printf("%d,%d,%d,%f\n",counter.getEpochCount(),System.nanoTime()-startTime,err,lvq.cf.error(lvq.getParams())/ds.size());
+        run.printf("%d,%d,%d,%f\n",counter.getEpochCount(),System.nanoTime()-startTime,err,lvq.cf.error(lvq.getParams())/ds.size());
         
-        System.out.println(lvq.getParams());
+        trained.println(lvq.getParams());
 
     }
 }
