@@ -2,7 +2,6 @@ package nl.rug.joptimize.learn.glvq;
 
 import nl.rug.joptimize.learn.Classifier;
 import nl.rug.joptimize.learn.LabeledDataSet;
-import nl.rug.joptimize.learn.grlvq.GRLVQCostFunction;
 import nl.rug.joptimize.opt.Optimizer;
 
 public class GLVQ implements Classifier {

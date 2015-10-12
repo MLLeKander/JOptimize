@@ -5,6 +5,7 @@ package nl.rug.joptimize.runs;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
+import java.util.Random;
 
 import nl.rug.joptimize.Arguments;
 import nl.rug.joptimize.learn.LabeledDataSet;
@@ -22,9 +23,9 @@ public class GMLVQPapari_1 {
             int dims = ds.dimensions();
             double prate = a.getDbl("prate",10.0/dims);
             double mrate = a.getDbl("mrate",20.0/dims);
-            int hist = a.getInt("hist");
-            double loss = a.getDbl("loss",1.2);
-            double gain = a.getDbl("gain",1.05);
+            int hist = a.getInt("hist", 5);
+            double loss = a.getDbl("loss",1.5);
+            double gain = a.getDbl("gain",1.1);
             double eps = a.getDbl("epsilon");
             int tmax = a.getInt("tmax");
             return new GMLVQPapari(prate,mrate,hist,loss,gain,eps,tmax);
@@ -34,7 +35,7 @@ public class GMLVQPapari_1 {
     }
     
     public static void ensureDir(String path) {
-    	new File(path).mkdir();
+        new File(path).mkdir();
     }
     
     public static void main(String[] argArr) throws FileNotFoundException {
@@ -78,6 +79,14 @@ public class GMLVQPapari_1 {
         opt.addObs(counter);
         
         GMLVQOptParam p = new GMLVQOptParam(ds);
+        if (args.hasArg("initseed")) {
+            Random r = new Random(args.getLong("initseed"));
+            for (int i = 0; i < p.prototypes.length; i++) {
+                for (int j = 0; j < p.prototypes[0].length; j++) {
+                    p.prototypes[i][j] = r.nextDouble()*2 - 1;
+                }
+            }
+        }
         GMLVQ lvq = new GMLVQ(ds, opt, p);
         
         int err = 0;
@@ -90,5 +99,8 @@ public class GMLVQPapari_1 {
         
         trained.println(lvq.getParams());
 
+        run.close();
+        trained.close();
+        init.close();
     }
 }

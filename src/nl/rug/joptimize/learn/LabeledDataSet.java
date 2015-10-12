@@ -157,14 +157,17 @@ public class LabeledDataSet {
 		int holes = 0;
 		for (int i = 0; i < dims; i++) {
 			vars[i] = Math.sqrt(vars[i]);
-			if (vars[i] < EPS && !discardEmpty) {
-				throw new IllegalArgumentException("Feature "+i+" has (near-)zero variance.");
+			if (vars[i] < EPS) {
+				if (!discardEmpty) {
+					throw new IllegalArgumentException("Feature "+i+" has (near-)zero variance.");
+				} else {
+					holes++;
+				}
 			}
-			holes++;
 		}
 		
 		if (holes > 0) {
-			System.err.println("Removing "+holes+" holes.");
+			System.err.println("Removing "+holes+" holes...");
 		}
 		
 		double[][] newData = zscoreCopy(holes, means, vars);
@@ -172,20 +175,21 @@ public class LabeledDataSet {
     }
     
     private double[][] zscoreCopy(int holes, double[] means, double[] vars) {
-	    int dims = this.dimensions(), size = this.size();
-    	double[][] out = new double[size-holes][dims];
-    	for (int i = 0; i < size; i++) {
-    		int outNdx = 0;
-    		for (int j = 0; j < dims; j++) {
-    			if (vars[j] < EPS) {
-    				continue;
-    			}
-    			
-    			out[i][outNdx] = (data[i][j]-means[j])/vars[j];
-    			outNdx++;
-    		}
-    	}
-    	return out;
+        int dims = this.dimensions(), size = this.size();
+        double[][] out = new double[size][dims-holes];
+        for (int i = 0; i < size; i++) {
+            int outNdx = 0;
+            for (int j = 0; j < dims; j++) {
+                if (vars[j] < EPS) {
+                    continue;
+                }
+
+                double tmp = (data[i][j]-means[j])/vars[j];
+                out[i][outNdx] = tmp;
+                outNdx++;
+            }
+        }
+        return out;
     }
     
 }

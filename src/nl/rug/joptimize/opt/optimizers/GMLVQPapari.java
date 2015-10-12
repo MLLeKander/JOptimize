@@ -17,8 +17,9 @@ public class GMLVQPapari extends AbstractOptimizer<GMLVQOptParam> {
     private double loss;
     private double gain;
     private double prevErr = Double.MAX_VALUE;
-    
-    public GMLVQPapari(double initProtoLearningRate, double initMatrixLearningRate, int histSize, double loss, double gain, double epsilon, int tMax) {
+    private boolean useNormalization;
+
+    public GMLVQPapari(double initProtoLearningRate, double initMatrixLearningRate, int histSize, double loss, double gain, boolean useNormalization, double epsilon, int tMax) {
         super(epsilon, tMax);
         this.initProtoLearningRate = initProtoLearningRate;
         this.initMatrixLearningRate = initMatrixLearningRate;
@@ -26,6 +27,11 @@ public class GMLVQPapari extends AbstractOptimizer<GMLVQOptParam> {
         this.histInv = 1./histSize;
         this.loss = loss;
         this.gain = gain;
+        this.useNormalization = useNormalization;
+    }
+
+    public GMLVQPapari(double initProtoLearningRate, double initMatrixLearningRate, int histSize, double loss, double gain, double epsilon, int tMax) {
+        this(initProtoLearningRate, initMatrixLearningRate, histSize, loss, gain, true, epsilon, tMax);
     }
     
     @Override
@@ -56,7 +62,7 @@ public class GMLVQPapari extends AbstractOptimizer<GMLVQOptParam> {
         }
         return grad;
     }
-    
+
     private void normalize(double[][] m) {
         double norm = 0;
         for (int i = 0; i < m.length; i++) {
@@ -76,7 +82,7 @@ public class GMLVQPapari extends AbstractOptimizer<GMLVQOptParam> {
     public GMLVQOptParam optimizationStep(SeparableCostFunction<GMLVQOptParam> cf, GMLVQOptParam params) {
 //        System.out.println("Params: "+params);
 //        GMLVQOptParam grad = cf.deriv(params);
-        GMLVQOptParam grad = normalizedGrad(cf,params);
+        GMLVQOptParam grad = useNormalization ? normalizedGrad(cf,params) : cf.deriv(params);
 //        System.out.println("Params: "+params);
 //        System.out.println("Grad: "+grad);
         GMLVQOptParam outParams = weightedGrad(grad).add_s(params);
