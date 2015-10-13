@@ -19,10 +19,10 @@ import nl.rug.joptimize.opt.optimizers.GMLVQPapari;
 
 public class GMLVQPapari_1 {
     public static AbstractOptimizer<GMLVQOptParam> getOpt(Arguments a, LabeledDataSet ds) {
-        if (a.get("opt").toUpperCase().replaceAll("[\\p{Punct} ]+", "").equals("GMLVQPAPARI")) {
+        if (a.get("opt").toUpperCase().replaceAll("[\\p{Punct} ]+", "").equals("PAPARI")) {
             int dims = ds.dimensions();
-            double prate = a.getDbl("prate",10.0/dims);
-            double mrate = a.getDbl("mrate",20.0/dims);
+            double prate = a.getDbl("prate",1);
+            double mrate = a.getDbl("mrate",2);
             int hist = a.getInt("hist", 5);
             double loss = a.getDbl("loss",1.5);
             double gain = a.getDbl("gain",1.1);
@@ -62,8 +62,7 @@ public class GMLVQPapari_1 {
             int t = 0;
             @Override
             public void notifyEpoch(GMLVQOptParam params, double cfError) {
-                t++;
-                if (t%freq == 0) {
+                if (t++%freq == 0) {
                     int classificationErr = 0;
                     for (int i = 0; i < ds.size(); i++) {
                         if (params.getClosestProtoLabel(ds.getData(i)) != ds.getLabel(i)) {
