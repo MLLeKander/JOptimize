@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 import nl.rug.joptimize.Arguments;
 import nl.rug.joptimize.learn.LabeledDataSet;
-import nl.rug.joptimize.learn.gmlvq.GMLVQ;
+import nl.rug.joptimize.learn.gmlvq.GMLVQClassifier;
 import nl.rug.joptimize.learn.gmlvq.GMLVQOptParam;
 import nl.rug.joptimize.opt.OptObserver;
 import nl.rug.joptimize.opt.optimizers.MultiBGD;
@@ -51,6 +51,6 @@ public class MultiBGD_1 {
                 System.out.println(opt.minRate+","+t+","+errCnt+","+costError);
             }
         });
-        new GMLVQ(ds, opt, init);
+        new GMLVQClassifier(opt, init).train(ds);
     }
 }

@@ -5,11 +5,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 
 import nl.rug.joptimize.learn.LabeledDataSet;
-import nl.rug.joptimize.learn.gmlvq.GMLVQ;
+import nl.rug.joptimize.learn.gmlvq.GMLVQClassifier;
+import nl.rug.joptimize.learn.gmlvq.GMLVQCostFunction;
 import nl.rug.joptimize.learn.gmlvq.GMLVQOptParam;
 import nl.rug.joptimize.opt.AbstractOptimizer;
 import nl.rug.joptimize.opt.OptObserver;
 import nl.rug.joptimize.opt.OptimizerFactory;
+import nl.rug.joptimize.opt.SeparableCostFunction;
 import nl.rug.joptimize.opt.observers.CountObserver;
 import nl.rug.joptimize.opt.observers.TimeObserver;
 
@@ -57,7 +59,9 @@ public class GMLVQMain {
         opt.addObs(timer);
 
         //GMLVQOptParam p = new GMLVQOptParam(new double[][]{{0,0.5},{0,-0.5}}, new double[]{1,1}, new int[]{0,1});
-        GMLVQ lvq = new GMLVQ(ds, opt);//, p);
+        GMLVQClassifier lvq = new GMLVQClassifier(opt, new GMLVQOptParam(ds));//, p);
+        SeparableCostFunction<GMLVQOptParam> cf = new GMLVQCostFunction(ds);
+        lvq.train(cf);
         
         int err = 0;
         for (int i = 0; i < ds.size(); i++) {
@@ -65,7 +69,7 @@ public class GMLVQMain {
                 err++;
             }
         }
-        System.out.println(err+"/"+ds.size()+", "+lvq.cf.error(lvq.getParams()));
+        System.out.println(err+"/"+ds.size()+", "+cf.error(lvq.getParams()));
         System.out.println(counter.getEpochCount());
         
         System.out.println(lvq.getParams());

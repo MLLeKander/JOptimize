@@ -5,7 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 
 import nl.rug.joptimize.learn.LabeledDataSet;
-import nl.rug.joptimize.learn.grlvq.GRLVQ;
+import nl.rug.joptimize.learn.grlvq.GRLVQClassifier;
 import nl.rug.joptimize.learn.grlvq.GRLVQOptParam;
 import nl.rug.joptimize.opt.AbstractOptimizer;
 import nl.rug.joptimize.opt.OptObserver;
@@ -57,7 +57,7 @@ public class LVQMain {
         opt.addObs(timer);
 
         //GRLVQOptParam p = new GRLVQOptParam(new double[][]{{0,0.5},{0,-0.5}}, new double[]{1,1}, new int[]{0,1});
-        GRLVQ lvq = new GRLVQ(ds, opt, 3);//, p);
+        GRLVQClassifier lvq = new GRLVQClassifier(ds, opt, 3);//, p);
         
         int err = 0;
         for (int i = 0; i < ds.size(); i++) {

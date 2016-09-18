@@ -1,24 +1,13 @@
 package nl.rug.joptimize.learn.grlvq;
 
 import nl.rug.joptimize.learn.LabeledDataSet;
-import nl.rug.joptimize.opt.SeparableCostFunction;
+import nl.rug.joptimize.opt.AbstractSeparableCostFunction;
 
-public class GRLVQCostFunction implements SeparableCostFunction<GRLVQOptParam> {
+public class GRLVQCostFunction extends AbstractSeparableCostFunction<GRLVQOptParam> {
     private final LabeledDataSet ds;
 
     public GRLVQCostFunction(LabeledDataSet ds) {
         this.ds = ds;
-    }
-
-    @Override
-    public double error(GRLVQOptParam params) {
-        // TODO Vectorized?
-        double out = 0;
-        int size = this.size();
-        for (int i = 0; i < size; i++) {
-            out += error(params, i);
-        }
-        return out;
     }
 
     @Override
@@ -30,24 +19,6 @@ public class GRLVQCostFunction implements SeparableCostFunction<GRLVQOptParam> {
         int k = params.getClosestIncorrectProtoNdx(data, label, exampleNdx);
         double dj = params.dist(j, data), dk = params.dist(k, data);
         return (dj - dk) / (dk + dj);
-    }
-
-    @Override
-    public GRLVQOptParam deriv(GRLVQOptParam params) {
-        // TODO Vectorized?
-        GRLVQOptParam out = params.zero();
-        int size = this.size();
-        for (int i = 0; i < size; i++) {
-            deriv(params, i, out);
-        }
-        return out;
-    }
-
-    @Override
-    public GRLVQOptParam deriv(GRLVQOptParam params, int exampleNdx) {
-        GRLVQOptParam out =  deriv(params, exampleNdx, params.zero());
-//        System.out.println("deriv: "+exampleNdx+" "+Arrays.toString(ds.getData(exampleNdx)));
-        return out;
     }
 
     @Override
@@ -96,22 +67,6 @@ public class GRLVQCostFunction implements SeparableCostFunction<GRLVQOptParam> {
         }
 
         return out;
-    }
-
-    @Override
-    public GRLVQOptParam hesseDiag(GRLVQOptParam params) {
-        // TODO Vectorized?
-        GRLVQOptParam out = params.zero();
-        int size = this.size();
-        for (int i = 0; i < size; i++) {
-            hesseDiag(params, i, out);
-        }
-        return out;
-    }
-
-    @Override
-    public GRLVQOptParam hesseDiag(GRLVQOptParam params, int exampleNdx) {
-        return hesseDiag(params, exampleNdx, params.zero());
     }
 
     @Override

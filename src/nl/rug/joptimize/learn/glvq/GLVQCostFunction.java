@@ -1,24 +1,13 @@
 package nl.rug.joptimize.learn.glvq;
 
 import nl.rug.joptimize.learn.LabeledDataSet;
-import nl.rug.joptimize.opt.SeparableCostFunction;
+import nl.rug.joptimize.opt.AbstractSeparableCostFunction;
 
-public class GLVQCostFunction implements SeparableCostFunction<GLVQOptParam> {
+public class GLVQCostFunction extends AbstractSeparableCostFunction<GLVQOptParam> {
     private final LabeledDataSet ds;
 
     public GLVQCostFunction(LabeledDataSet ds) {
         this.ds = ds;
-    }
-
-    @Override
-    public double error(GLVQOptParam params) {
-        // TODO Vectorized?
-        double out = 0;
-        int size = this.size();
-        for (int i = 0; i < size; i++) {
-            out += error(params, i);
-        }
-        return out;
     }
 
     @Override
@@ -30,22 +19,6 @@ public class GLVQCostFunction implements SeparableCostFunction<GLVQOptParam> {
         int k = params.getClosestIncorrectProtoNdx(data, label, exampleNdx);
         double dj = params.dist(j, data), dk = params.dist(k, data);
         return (dj - dk) / (dk + dj);
-    }
-
-    @Override
-    public GLVQOptParam deriv(GLVQOptParam params) {
-        // TODO Vectorized?
-        GLVQOptParam out = params.zero();
-        int size = this.size();
-        for (int i = 0; i < size; i++) {
-            deriv(params, i, out);
-        }
-        return out;
-    }
-
-    @Override
-    public GLVQOptParam deriv(GLVQOptParam params, int exampleNdx) {
-        return deriv(params, exampleNdx, params.zero());
     }
 
     @Override
@@ -76,22 +49,6 @@ public class GLVQCostFunction implements SeparableCostFunction<GLVQOptParam> {
         }
 
         return out;
-    }
-
-    @Override
-    public GLVQOptParam hesseDiag(GLVQOptParam params) {
-        // TODO Vectorized?
-        GLVQOptParam out = params.zero();
-        int size = this.size();
-        for (int i = 0; i < size; i++) {
-            hesseDiag(params, i, out);
-        }
-        return out;
-    }
-
-    @Override
-    public GLVQOptParam hesseDiag(GLVQOptParam params, int exampleNdx) {
-        return hesseDiag(params, exampleNdx, params.zero());
     }
 
     @Override

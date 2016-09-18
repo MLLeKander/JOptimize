@@ -3,39 +3,29 @@ package nl.rug.joptimize.learn.gmlvq;
 import nl.rug.joptimize.learn.Classifier;
 import nl.rug.joptimize.learn.LabeledDataSet;
 import nl.rug.joptimize.opt.Optimizer;
+import nl.rug.joptimize.opt.SeparableCostFunction;
 
-public class GMLVQ implements Classifier {
+public class GMLVQClassifier implements Classifier {
 
     GMLVQOptParam params;
     GMLVQOptParam init;
-    public GMLVQCostFunction cf;
     Optimizer<GMLVQOptParam> opt;
 
-    public GMLVQ(LabeledDataSet ds, Optimizer<GMLVQOptParam> opt, GMLVQOptParam init) {
+    public GMLVQClassifier(Optimizer<GMLVQOptParam> opt, GMLVQOptParam init) {
         this.opt = opt;
         this.init = init;
-        this.cf = new GMLVQCostFunction(ds);
-        this.train(ds);
     }
 
-    public GMLVQ(LabeledDataSet ds, Optimizer<GMLVQOptParam> opt) {
-        this(ds, opt, new GMLVQOptParam(ds));
-    }
-
-    public GMLVQ(LabeledDataSet ds, Optimizer<GMLVQOptParam> opt, int prototypesPerClass) {
-        this(ds, opt, new GMLVQOptParam(prototypesPerClass, ds));
-    }
-
-    public GMLVQ(LabeledDataSet ds, Optimizer<GMLVQOptParam> opt, int[] prototypesPerClass) {
-        this(ds, opt, new GMLVQOptParam(prototypesPerClass, ds));
-    }
-
-    public void setInit(GMLVQOptParam init) {
+    public GMLVQClassifier(GMLVQOptParam init) {
         this.init = init;
     }
 
     @Override
     public void train(LabeledDataSet ds) {
+        train(new GMLVQCostFunction(ds));
+    }
+
+    public void train(SeparableCostFunction<GMLVQOptParam> cf) {
         this.params = opt.optimize(cf, this.init);
     }
 

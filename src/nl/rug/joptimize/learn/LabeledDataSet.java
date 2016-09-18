@@ -3,6 +3,7 @@ package nl.rug.joptimize.learn;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.Scanner;
 import java.util.TreeSet;
 
@@ -28,31 +29,32 @@ public class LabeledDataSet {
             assert (set.contains(i));
         }
     }
-
+    
     public int getLabel(int ndx) {
         return this.labels[ndx];
     }
-
+    
     public double[] getData(int ndx) {
         return this.data[ndx];
     }
-
+    
     public double getData(int ndx, int dimension) {
         return this.data[ndx][dimension];
     }
-
+    
     public int size() {
         return this.data.length;
     }
-
+    
     public int dimensions() {
         // Assumes data has at least one element.
         return this.data[0].length;
     }
-
+    
     public int classes() {
         return this.maxLabel+1;
     }
+    
     public static LabeledDataSet parseDataFile(File input) throws FileNotFoundException {
         Scanner file = new Scanner(input);
         @SuppressWarnings("resource")
@@ -133,7 +135,7 @@ public class LabeledDataSet {
     public LabeledDataSet zscore() {
     	return zscore(true);
     }
-        
+    
     public LabeledDataSet zscore(boolean discardEmpty) {
 	    int dims = this.dimensions(), size = this.size();
 		double[] means = new double[dims];
@@ -175,7 +177,7 @@ public class LabeledDataSet {
     }
     
     private double[][] zscoreCopy(int holes, double[] means, double[] vars) {
-        int dims = this.dimensions(), size = this.size();
+        int dims = dimensions(), size = size();
         double[][] out = new double[size][dims-holes];
         for (int i = 0; i < size; i++) {
             int outNdx = 0;
@@ -192,4 +194,32 @@ public class LabeledDataSet {
         return out;
     }
     
+    public SplitLabeledDataSet split(int aSize, long randSeed) {
+        int dims = dimensions(), size = size();
+        Random rand = new Random(randSeed);
+        for (int i = 0; i < aSize; i++) {
+            int sample = rand.nextInt(size - i) + i;
+            if (sample != i) {
+                double[] dataTmp = data[i];
+                int labelTmp = labels[i];
+                data[i] = data[sample];
+                labels[i] = labels[sample];
+                data[sample] = dataTmp;
+                labels[sample] = labelTmp;
+            }
+        }
+        double[][] dataA = new double[aSize][dims], dataB = new double[size-aSize][dims];
+        for (int i = 0; i < size; i++) {
+            if (i < aSize) {
+                System.arraycopy(data[i], 0, dataA[i], 0, dims);
+            } else {
+                System.arraycopy(data[i], 0, dataB[i-aSize], 0, dims);
+            }
+        }
+        int[] labelsA = new int[aSize], labelsB = new int[size-aSize];
+        System.arraycopy(labels, 0, labelsA, 0, aSize);
+        System.arraycopy(labels, aSize, labelsB, 0, size-aSize);
+
+        return new SplitLabeledDataSet(new LabeledDataSet(dataA, labelsA), new LabeledDataSet(dataB, labelsB));
+    }
 }

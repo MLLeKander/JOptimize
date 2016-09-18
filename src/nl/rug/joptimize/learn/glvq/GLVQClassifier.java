@@ -4,29 +4,29 @@ import nl.rug.joptimize.learn.Classifier;
 import nl.rug.joptimize.learn.LabeledDataSet;
 import nl.rug.joptimize.opt.Optimizer;
 
-public class GLVQ implements Classifier {
+public class GLVQClassifier implements Classifier {
 
     GLVQOptParam params;
     GLVQOptParam init;
     Optimizer<GLVQOptParam> opt;
     public GLVQCostFunction cf;
 
-    public GLVQ(LabeledDataSet ds, Optimizer<GLVQOptParam> opt, GLVQOptParam init) {
+    public GLVQClassifier(LabeledDataSet ds, Optimizer<GLVQOptParam> opt, GLVQOptParam init) {
         this.opt = opt;
         this.init = init;
         cf = new GLVQCostFunction(ds);
         this.train(ds);
     }
 
-    public GLVQ(LabeledDataSet ds, Optimizer<GLVQOptParam> opt) {
+    public GLVQClassifier(LabeledDataSet ds, Optimizer<GLVQOptParam> opt) {
         this(ds, opt, new GLVQOptParam(ds));
     }
 
-    public GLVQ(LabeledDataSet ds, Optimizer<GLVQOptParam> opt, int prototypesPerClass) {
+    public GLVQClassifier(LabeledDataSet ds, Optimizer<GLVQOptParam> opt, int prototypesPerClass) {
         this(ds, opt, new GLVQOptParam(prototypesPerClass, ds));
     }
 
-    public GLVQ(LabeledDataSet ds, Optimizer<GLVQOptParam> opt, int[] prototypesPerClass) {
+    public GLVQClassifier(LabeledDataSet ds, Optimizer<GLVQOptParam> opt, int[] prototypesPerClass) {
         this(ds, opt, new GLVQOptParam(prototypesPerClass, ds));
     }
 

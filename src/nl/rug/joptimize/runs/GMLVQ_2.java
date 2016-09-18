@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import nl.rug.joptimize.learn.LabeledDataSet;
-import nl.rug.joptimize.learn.gmlvq.GMLVQ;
+import nl.rug.joptimize.learn.gmlvq.GMLVQClassifier;
 import nl.rug.joptimize.learn.gmlvq.GMLVQOptParam;
 import nl.rug.joptimize.opt.AbstractOptimizer;
 import nl.rug.joptimize.opt.OptObserver;
@@ -47,7 +47,8 @@ public class GMLVQ_2 {
                 System.out.println(t+","+errCnt+","+costError);
             }
         });
-        GMLVQ gmlvq = new GMLVQ(ds, opt, init);
+        GMLVQClassifier gmlvq = new GMLVQClassifier(opt, init);
+        gmlvq.train(ds);
         double[][] w = gmlvq.getParams().weights;
         for (double[] row : w) {
             for (double d : row) {

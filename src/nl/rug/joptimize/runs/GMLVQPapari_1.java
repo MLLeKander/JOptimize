@@ -9,18 +9,21 @@ import java.util.Random;
 
 import nl.rug.joptimize.Arguments;
 import nl.rug.joptimize.learn.LabeledDataSet;
-import nl.rug.joptimize.learn.gmlvq.GMLVQ;
+import nl.rug.joptimize.learn.SigmoidCostFunction;
+import nl.rug.joptimize.learn.SplitLabeledDataSet;
+import nl.rug.joptimize.learn.gmlvq.GMLVQClassifier;
+import nl.rug.joptimize.learn.gmlvq.GMLVQCostFunction;
 import nl.rug.joptimize.learn.gmlvq.GMLVQOptParam;
 import nl.rug.joptimize.opt.AbstractOptimizer;
 import nl.rug.joptimize.opt.OptObserver;
 import nl.rug.joptimize.opt.OptimizerFactory;
+import nl.rug.joptimize.opt.SeparableCostFunction;
 import nl.rug.joptimize.opt.observers.CountObserver;
 import nl.rug.joptimize.opt.optimizers.GMLVQPapari;
 
 public class GMLVQPapari_1 {
     public static AbstractOptimizer<GMLVQOptParam> getOpt(Arguments a, LabeledDataSet ds) {
         if (a.get("opt").toUpperCase().replaceAll("[\\p{Punct} ]+", "").equals("PAPARI")) {
-            int dims = ds.dimensions();
             double prate = a.getDbl("prate",1);
             double mrate = a.getDbl("mrate",2);
             int hist = a.getInt("hist", 5);
@@ -53,7 +56,17 @@ public class GMLVQPapari_1 {
         init.println("java "+GMLVQPapari_1.class.getCanonicalName()+" "+args.toString());
         
         LabeledDataSet dsTmp = LabeledDataSet.parseDataFile(new File(args.getDefault()));
-        final LabeledDataSet ds = args.getBool("zscore",false) ? dsTmp.zscore() : dsTmp;
+        LabeledDataSet dsTestTmp = null;
+        if (args.hasArg("split")) {
+            SplitLabeledDataSet split = dsTmp.split(args.getInt("split"),args.getLong("splitSeed"));
+            dsTmp = split.a;
+            dsTestTmp = split.b;
+        }
+        if (args.getBool("zscore", false)) {
+            dsTmp = dsTmp.zscore();
+        }
+        final LabeledDataSet ds = dsTmp;
+        final LabeledDataSet dsTest = dsTestTmp; 
         AbstractOptimizer<GMLVQOptParam> opt = getOpt(args, ds);
         
         final int freq = args.getInt("freq", 50);
@@ -69,7 +82,17 @@ public class GMLVQPapari_1 {
                             classificationErr++;
                         }
                     }
-                    run.printf("%d,%d,%d,%f\n",t,System.nanoTime()-startTime,classificationErr,cfError/ds.size());
+                    run.printf("%d,%d,%f,%f",t,System.nanoTime()-startTime,classificationErr/(double)ds.size(),cfError/ds.size());
+                    if (dsTest != null) {
+                        classificationErr = 0;
+                        for (int i = 0; i < dsTest.size(); i++) {
+                            if (params.getClosestProtoLabel(dsTest.getData(i)) != dsTest.getLabel(i)) {
+                                classificationErr++;
+                            }
+                        }
+                        run.printf(",%f", classificationErr/(double)dsTest.size());
+                    }
+                    run.println();
                 }
             }
         });
@@ -86,7 +109,12 @@ public class GMLVQPapari_1 {
                 }
             }
         }
-        GMLVQ lvq = new GMLVQ(ds, opt, p);
+        GMLVQClassifier lvq = new GMLVQClassifier(opt, p);
+        SeparableCostFunction<GMLVQOptParam> cf = new GMLVQCostFunction(ds);
+        if (args.getBool("sigmoid",false)) {
+            cf = new SigmoidCostFunction<>(cf, args.getDbl("sigmoidAlpha",5));
+        }
+        lvq.train(cf);
         
         int err = 0;
         for (int i = 0; i < ds.size(); i++) {
@@ -94,7 +122,7 @@ public class GMLVQPapari_1 {
                 err++;
             }
         }
-        run.printf("%d,%d,%d,%f\n",counter.getEpochCount(),System.nanoTime()-startTime,err,lvq.cf.error(lvq.getParams())/ds.size());
+        run.printf("%d,%d,%f,%f\n",counter.getEpochCount(),System.nanoTime()-startTime,err/(double)ds.size(),cf.error(lvq.getParams())/ds.size());
         
         trained.println(lvq.getParams());
 
