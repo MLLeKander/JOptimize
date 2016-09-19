@@ -95,13 +95,13 @@ public class GLVQCostFunction extends AbstractSeparableCostFunction<GLVQOptParam
     }
     
     @SuppressWarnings("unused")
-    private double firstDerivLVQ(double dj, double dk, double djP, double dkP) {
+    private static double firstDerivLVQ(double dj, double dk, double djP, double dkP) {
         double dSum = dj+dk;
         return 2*(dk*djP - dj*dkP)/(dSum*dSum);
     }
 
     @SuppressWarnings("unused")
-    private double secondDerivLVQ(double dj, double dk, double djP, double dkP, double djPP, double dkPP) {
+    private static double secondDerivLVQ(double dj, double dk, double djP, double dkP, double djPP, double dkPP) {
         double dSum = dj+dk;
         //return (djPP-dkPP)/(dj+dk) - 2*(djP*djP-dkP*dkP)/(dSum*dSum) + (dj-dk)*(2*(djP-dkP)*(djP-dkP)/(dSum*dSum*dSum) - (djPP+dkPP)/(dSum*dSum));
         return (djPP-dkPP)/dSum - 2*(djP-dkP)*(djP+dkP)/(dSum*dSum) + (dj-dk)*(2*(djP+dkP)*(djP+dkP)/(dSum*dSum*dSum) - (djPP+dkPP)/(dSum*dSum));

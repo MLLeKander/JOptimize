@@ -5,11 +5,12 @@ package nl.rug.joptimize.learn.glvq;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Random;
 
 import nl.rug.joptimize.learn.LabeledDataSet;
-import nl.rug.joptimize.opt.OptParam;
+import nl.rug.joptimize.opt.AbstractOptParam;
 
-public class GLVQOptParam implements OptParam<GLVQOptParam> {
+public class GLVQOptParam extends AbstractOptParam<GLVQOptParam> {
     double[][] prototypes;
     int[] labels;
     // TODO Holy shit this is bad.
@@ -209,6 +210,22 @@ public class GLVQOptParam implements OptParam<GLVQOptParam> {
     public int dimensions() {
         return this.prototypes[0].length;
     }
+    
+    @Override
+    public double get(int ndx) {
+        return getFlatIndex(prototypes, ndx);
+    }
+
+    @Override
+    public void set(int ndx, double value) {
+        setFlatIndex(prototypes, ndx, value);
+    }
+
+    @Override
+    public int length() {
+        return prototypes.length*prototypes[0].length;
+    }
+
 
     @Override
     public GLVQOptParam add(GLVQOptParam o) {
@@ -404,6 +421,17 @@ public class GLVQOptParam implements OptParam<GLVQOptParam> {
         for (int i = 0; i < protos; i++) {
             for (int j = 0; j < dims; j++) {
                 this.prototypes[i][j] *= o;
+            }
+        }
+        return this;
+    }
+
+    @Override
+    public GLVQOptParam random_s(Random r) {
+        int protos = this.numProtos(), dims = this.dimensions();
+        for (int i = 0; i < protos; i++) {
+            for (int j = 0; j < dims; j++) {
+                this.prototypes[i][j] = r.nextDouble();
             }
         }
         return this;

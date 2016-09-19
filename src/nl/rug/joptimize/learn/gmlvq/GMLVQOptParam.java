@@ -93,6 +93,34 @@ public class GMLVQOptParam extends AbstractOptParam<GMLVQOptParam> {
             this.weights[i][i] = 1 / dimensions;
         }
     }
+    
+    public GMLVQOptParam normalizeWeights() {
+        normalize(weights);
+        return this;
+    }
+    
+    public GMLVQOptParam normalizeProtos() {
+        normalize(prototypes);
+        return this;
+    }
+    
+    public static void normalize(double[][] m) {
+        double norm = 0;
+        for (int i = 0; i < m.length; i++) {
+            for (int j = 0; j < m[i].length; j++) {
+                norm += m[i][j] * m[i][j];
+            }
+        }
+        norm = Math.sqrt(norm);
+        if (norm == 0) { // Necessary if gradients are zero.
+            return;
+        }
+        for (int i = 0; i < m.length; i++) {
+            for (int j = 0; j < m[i].length; j++) {
+                m[i][j] /= norm;
+            }
+        }
+    }
 
     public void setProto(int ndx, double[] data) {
         assert (data.length == this.prototypes[ndx].length);
@@ -220,6 +248,31 @@ public class GMLVQOptParam extends AbstractOptParam<GMLVQOptParam> {
 
     public int numWeights() {
         return this.weights.length;
+    }
+    
+    @Override
+    public double get(int ndx) {
+        int protSize = this.numProtos()*this.dimensions();
+        if (ndx < protSize) {
+            return getFlatIndex(prototypes, ndx);
+        } else {
+            return getFlatIndex(weights, ndx-protSize);
+        }
+    }
+
+    @Override
+    public void set(int ndx, double value) {
+        int protSize = prototypes.length*prototypes[0].length;
+        if (ndx < protSize) {
+            setFlatIndex(prototypes, ndx, value);
+        } else {
+            setFlatIndex(weights, ndx-protSize, value);
+        }
+    }
+
+    @Override
+    public int length() {
+        return prototypes.length*prototypes[0].length+weights.length*weights[0].length;
     }
 
     @Override
@@ -385,6 +438,22 @@ public class GMLVQOptParam extends AbstractOptParam<GMLVQOptParam> {
     }
 
     @Override
+    public GMLVQOptParam random_s(Random r) {
+        int protos = this.numProtos(), dims = this.dimensions(), weights = this.numWeights();
+        for (int i = 0; i < protos; i++) {
+            for (int j = 0; j < dims; j++) {
+                this.prototypes[i][j] = r.nextDouble();
+            }
+        }
+        for (int i = 0; i < weights; i++) {
+            for (int j = 0; j < dims; j++) {
+                this.weights[i][j] = r.nextDouble();
+            }
+        }
+        return this;
+    }
+
+    @Override
     public GMLVQOptParam copy() {
         double[][] newProtos = this.newProtos();
         double[][] newWeights = newWeights();
@@ -504,26 +573,26 @@ public class GMLVQOptParam extends AbstractOptParam<GMLVQOptParam> {
         String rowSep = "";
         for (double[] row : prototypes) {
             sb.append(rowSep);
-            rowSep = "/";
+            rowSep = "\n";
             String sep = "";
             for (double val : row) {
                 sb.append(sep);
-                sb.append(String.format("%.3f",val));
-                sep = ",";
+                sb.append(String.format("%.4f",val));
+                sep = "  ";
             }
         }
 
-        sb.append("\\\\");
+        sb.append("\n\n");
 //        sb.append(weights.length+","+weights[0].length+"\n");
         rowSep = "";
         for (double[] row : weights) {
             sb.append(rowSep);
-            rowSep = "/";
+            rowSep = "\n";
             String sep = "";
             for (double val : row) {
                 sb.append(sep);
-                sb.append(String.format("%.3f",val));
-                sep = ",";
+                sb.append(String.format("%.4f",val));
+                sep = "  ";
             }
         }
         return sb.toString();

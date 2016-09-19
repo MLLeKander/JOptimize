@@ -29,9 +29,10 @@ public class GMLVQPapari_1 {
             int hist = a.getInt("hist", 5);
             double loss = a.getDbl("loss",1.5);
             double gain = a.getDbl("gain",1.1);
+            boolean normalize = a.getBool("normalize", true);
             double eps = a.getDbl("epsilon");
             int tmax = a.getInt("tmax");
-            return new GMLVQPapari(prate,mrate,hist,loss,gain,eps,tmax);
+            return new GMLVQPapari(prate,mrate,hist,loss,gain,normalize,eps,tmax);
         } else {
             return OptimizerFactory.createOptimizer(a);
         }
@@ -101,6 +102,8 @@ public class GMLVQPapari_1 {
         opt.addObs(counter);
         
         GMLVQOptParam p = new GMLVQOptParam(ds);
+        //System.out.println("init:\n"+p);
+        p.normalizeWeights();
         if (args.hasArg("initseed")) {
             Random r = new Random(args.getLong("initseed"));
             for (int i = 0; i < p.prototypes.length; i++) {

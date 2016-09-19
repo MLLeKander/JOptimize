@@ -1,5 +1,7 @@
 package nl.rug.joptimize.opt;
 
+import java.util.Random;
+
 public interface OptParam<ParamType extends OptParam<ParamType>> {
     public ParamType add(ParamType o);
 
@@ -44,4 +46,8 @@ public interface OptParam<ParamType extends OptParam<ParamType>> {
     public ParamType copy();
 
     public double squaredNorm();
+
+    public ParamType random(Random r);
+    
+    public ParamType random_s(Random r);
 }

@@ -16,7 +16,6 @@ public class GMLVQPapari extends AbstractOptimizer<GMLVQOptParam> {
     private ArrayDeque<GMLVQOptParam> hist;
     private double loss;
     private double gain;
-    private double prevErr = Double.MAX_VALUE;
     private boolean useNormalization;
 
     public GMLVQPapari(double initProtoLearningRate, double initMatrixLearningRate, int histSize, double loss, double gain, boolean useNormalization, double epsilon, int tMax) {
@@ -42,13 +41,6 @@ public class GMLVQPapari extends AbstractOptimizer<GMLVQOptParam> {
         this.hist = new ArrayDeque<>(histSize);
     }
     
-    private GMLVQOptParam normalizedGrad(SeparableCostFunction<GMLVQOptParam> cf, GMLVQOptParam params) {
-        GMLVQOptParam grad = cf.deriv(params);
-        normalize(grad.prototypes);
-        normalize(grad.weights);
-        return grad;
-    }
-    
     private GMLVQOptParam weightedGrad(GMLVQOptParam grad) {
         for (int i = 0; i < grad.prototypes.length; i++) {
             for (int j = 0; j < grad.prototypes[i].length; j++) {
@@ -63,77 +55,68 @@ public class GMLVQPapari extends AbstractOptimizer<GMLVQOptParam> {
         return grad;
     }
 
-    private void normalize(double[][] m) {
-        double norm = 0;
-        for (int i = 0; i < m.length; i++) {
-            for (int j = 0; j < m[i].length; j++) {
-                norm += m[i][j] * m[i][j];
-            }
+    private GMLVQOptParam maybeNormalizedGrad(SeparableCostFunction<GMLVQOptParam> cf, GMLVQOptParam params) {
+        GMLVQOptParam grad = cf.deriv(params);
+        if (useNormalization) {
+            grad.normalizeProtos().normalizeWeights();
         }
-        norm = Math.sqrt(norm);
-        for (int i = 0; i < m.length; i++) {
-            for (int j = 0; j < m[i].length; j++) {
-                m[i][j] /= norm;
-            }
-        }
+        //System.out.println("grad:\n"+grad);
+        return weightedGrad(grad);
     }
 
     @Override
     public GMLVQOptParam optimizationStep(SeparableCostFunction<GMLVQOptParam> cf, GMLVQOptParam params) {
-//        System.out.println("Params: "+params);
-//        GMLVQOptParam grad = cf.deriv(params);
-        GMLVQOptParam grad = useNormalization ? normalizedGrad(cf,params) : cf.deriv(params);
-//        System.out.println("Params: "+params);
-//        System.out.println("Grad: "+grad);
-        GMLVQOptParam outParams = weightedGrad(grad).add_s(params);
+        GMLVQOptParam outParams;
         
-        if (hist.size() >= histSize-1) {
-            GMLVQOptParam waypointAvg = outParams.zero();
+        if (hist.size() >= histSize) {
+            //System.out.println("--- Papari step");
+            
+            GMLVQOptParam oldParams = params.copy();
+            GMLVQOptParam newParams = outParams = maybeNormalizedGrad(cf, params).add_s(params);
+            
+            GMLVQOptParam avgParams = params.zero();
             for (GMLVQOptParam p : hist) {
-                waypointAvg.add_s(p);
+                avgParams.add_s(p);
             }
-            waypointAvg.multiply_s(histInv);
-            GMLVQOptParam protoAvg = new GMLVQOptParam(waypointAvg.prototypes, outParams.weights, outParams.labels);
-            GMLVQOptParam matrixAvg = new GMLVQOptParam(outParams.prototypes, waypointAvg.weights, outParams.labels);
+            avgParams.multiply_s(histInv);
 
             matrixLearningRate *= gain;
             protoLearningRate *= gain;
-
-            double err = cf.error(outParams), errAvg, errAvgP, errAvgM;
-//            System.out.println("tmpParams: "+outParams+", "+err);
-            err = Math.min(err, errAvg=cf.error(waypointAvg));
-            err = Math.min(err, errAvgP=cf.error(protoAvg));
-            err = Math.min(err, errAvgM=cf.error(protoAvg));
-            if (errAvg == err) {
-                // Average prototypes and matrix
-//                System.out.println("WA wins");
-                matrixLearningRate /= loss;
+            
+            double errAvgProto = cf.error(new GMLVQOptParam(avgParams.prototypes, oldParams.weights, oldParams.labels))/6;
+            double errNewProto = cf.error(new GMLVQOptParam(newParams.prototypes, oldParams.weights, oldParams.labels))/6;
+            double errAvgMatrix = cf.error(new GMLVQOptParam(oldParams.prototypes, avgParams.weights, oldParams.labels))/6;
+            double errNewMatrix = cf.error(new GMLVQOptParam(oldParams.prototypes, newParams.weights, oldParams.labels))/6;
+            //System.out.printf("errAvgProto: %.8f\n",errAvgProto);
+            //System.out.printf("errNewProto: %.8f\n",errNewProto);
+            //System.out.printf("errAvgMatrix: %.8f\n",errAvgMatrix);
+            //System.out.printf("errNewMatrix: %.8f\n",errNewMatrix);
+            if (errAvgProto <= errNewProto) {
+                // Average prototypes
+                //System.out.printf("WA_p wins: %.8f %.8f\n", errAvgProto, errNewProto);
                 protoLearningRate /= loss;
-                outParams = waypointAvg;
-            } else if (errAvgP == err) {
-                // Average prototypes, normal step matrix
-//                System.out.println("WA_p wins");
-                protoLearningRate /= loss;
-                outParams = protoAvg;
-            } else if (errAvgM == err) {
-                // Average matrix, normal step prototypes
-//                System.out.println("WA_m wins");
+                outParams.prototypes = avgParams.prototypes;
+            }
+            if (errAvgMatrix <= errNewMatrix) {
+                // Average matrix
+                //System.out.printf("WA_m wins: %.8f %.8f\n", errAvgMatrix, errNewMatrix);
                 matrixLearningRate /= loss;
-                outParams = matrixAvg;
-            } else if (prevErr < err) {
-//                System.out.println("Normal step wins... oops, went too far.");
-                matrixLearningRate /= loss;
-                protoLearningRate /= loss;
-            } else {
-//                System.out.println("Normal step wins.");
+                outParams.weights = avgParams.weights;
             }
             hist.remove();
-            
-            prevErr = err;
+            //System.out.println("matrixLearningRate: "+matrixLearningRate);
+            //System.out.println("protoLearningRate: "+protoLearningRate);
         }
-        normalize(outParams.weights);
-//        System.out.printf("mrate:%f, prate:%f\n",matrixLearningRate,protoLearningRate);
+        else {
+            //System.out.println("--- BGD step");
+            outParams =  maybeNormalizedGrad(cf, params).add_s(params);
+        }
+        outParams.normalizeWeights();
         hist.add(outParams.copy());
+
+        //System.out.println("New params:");
+        //System.out.println(outParams);
+
         return outParams;
     }
 }

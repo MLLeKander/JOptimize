@@ -24,8 +24,11 @@ public class VSGD<ParamType extends OptParam<ParamType>> extends AbstractOptimiz
         gs = initParams.zero();
         vs = initParams.zero();
         
+        //System.out.println("init:\n"+initParams);
         for (int i = 0; i < size; i++) {
             ParamType partialGrad = cf.deriv(initParams, i);
+            ParamType partialHesse = cf.hesseDiag(initParams, i);
+            //System.out.println(i+1+"\n"+partialHesse);
             gs.add_s(partialGrad);
             vs.add_s(partialGrad.dotprod_s(partialGrad));
         }
@@ -34,6 +37,8 @@ public class VSGD<ParamType extends OptParam<ParamType>> extends AbstractOptimiz
         vs.multiply_s(C/(double)size);
         taus = initParams.one().multiply_s(size + eps);
         hs = cf.hesseDiag(initParams).multiply_s(C/(double)size).abs_s();
+        //System.out.println("g\n"+gs);
+        //System.out.println("h\n"+hs);
         ONE = initParams.one();
 //        System.out.printf("init gs:%s\ninit vs:%s\ninit hs:%s\ntaus: %s\nONE: %s\n", gs,vs,hs,taus,ONE);
     }

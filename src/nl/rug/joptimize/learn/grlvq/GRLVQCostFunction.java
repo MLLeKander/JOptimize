@@ -23,7 +23,6 @@ public class GRLVQCostFunction extends AbstractSeparableCostFunction<GRLVQOptPar
 
     @Override
     public GRLVQOptParam deriv(GRLVQOptParam params, int exampleNdx, GRLVQOptParam out) {
-        // (2*dk*dj' - 2*dj*dk')/(dj+dk)^2
         double[] data = ds.getData(exampleNdx);
         int label = ds.getLabel(exampleNdx);
         // J = same, K = different
@@ -36,34 +35,22 @@ public class GRLVQCostFunction extends AbstractSeparableCostFunction<GRLVQOptPar
         double[] opj = out.prototypes[j], opk = out.prototypes[k];
         double[] weights = params.weights, oweights = out.weights;
         double dj = params.dist(j, data), dk = params.dist(k, data);
-        double dSum = dj+dk;
 
-        double tmp = 2 / (dSum * dSum);
-        // TODO Check signs.
-        double tmpJ = tmp * 2 * dk, tmpK = -tmp * 2 * dj;
-        double tmpWj = tmp * dk, tmpWk = -tmp * dj; 
         int dims = params.dimensions();
 
-        double djP, dkP, sav;
         for (int ndx = 0; ndx < dims; ndx++) {
-            double diffJ = pj[ndx] - data[ndx];
-            double diffK = pk[ndx] - data[ndx];
-                        
-            djP = 2*weights[ndx]*diffJ; dkP = 0;
-            sav = tmpJ * diffJ * weights[ndx];
-            opj[ndx] += sav;
-            check(firstDerivLVQ(dj, dk, djP, dkP),sav, "opj'");
-            
-            djP = 0; dkP = 2*weights[ndx]*diffK;
-            sav = tmpK * diffK * weights[ndx];
-            opk[ndx] += sav;
-            check(firstDerivLVQ(dj, dk, djP, dkP), sav, "opk'");
-            
-            // (2*dk*(pj-data)^2 - 2*dj*(pk-data)^2)/(dj+dk)^2
-            djP = weights[ndx] * diffJ * diffJ; dkP = weights[ndx] * diffK * diffK;
-            sav = weights[ndx] * (tmpWj * diffJ * diffJ + tmpWk * diffK * diffK);
-            oweights[ndx] += sav;
-            check(firstDerivLVQ(dj, dk, djP, dkP),sav, "oweights'");
+            double deltaJ = pj[ndx] - data[ndx];
+            double deltaK = pk[ndx] - data[ndx];
+            double w = weights[ndx];
+
+            double dj_pjP = 2*w*w*deltaJ;
+            double dk_pkP = 2*w*w*deltaK;
+            double dk_pjP = 0, dj_pkP = 0;
+            opj[ndx] += firstDerivLVQ(dj, dk, dj_pjP, dk_pjP);
+            opk[ndx] += firstDerivLVQ(dj, dk, dj_pkP, dk_pkP);
+            double dj_wP = 2*w*deltaJ*deltaJ;
+            double dk_wP = 2*w*deltaK*deltaK;
+            oweights[ndx] += firstDerivLVQ(dj, dk, dj_wP, dk_wP);
         }
 
         return out;
@@ -71,7 +58,6 @@ public class GRLVQCostFunction extends AbstractSeparableCostFunction<GRLVQOptPar
 
     @Override
     public GRLVQOptParam hesseDiag(GRLVQOptParam params, int exampleNdx, GRLVQOptParam out) {
-        // (dj''-dk'')/(dj+dk) - 2(dj'^2-dk'^2)/(dk+dj)^2 + (dj-dk)(2(dj'-dk')^2/(dj+dk)^3 - (dj''+dk'')/(dj+dk)^2)
         double[] data = ds.getData(exampleNdx);
         int label = ds.getLabel(exampleNdx);
         // J = same, K = different
@@ -82,67 +68,36 @@ public class GRLVQCostFunction extends AbstractSeparableCostFunction<GRLVQOptPar
         double[] opj = out.prototypes[j], opk = out.prototypes[k];
         double[] weights = params.weights, oweights = out.weights;
         double dj = params.dist(j, data), dk = params.dist(k, data);
-//        double dSum = dj + dk;
 
-//        double tmp = 4 / (dSum * dSum * dSum);
-        // TODO Check signs.
-//        double tmpJ = tmp * dk * dSum, tmpJ_ = tmp * dk * -2;
-//        double tmpK = -tmp * dj * dSum, tmpK_ = tmp * dj * 2;
         int dims = params.dimensions();
 
-//        double sav;
-        double djP, dkP, djPP, dkPP;
         for (int ndx = 0; ndx < dims; ndx++) {
-            //TODO Appropriate for weights
-        	double w = weights[ndx], wSqr = w*w;
+        	double w = weights[ndx];
             double diffJ = pj[ndx] - data[ndx], diffK = pk[ndx] - data[ndx];
             
-            djP = 2*wSqr*diffJ; dkP = 0;
-            djPP = 2*wSqr; dkPP = 0;
-            // TODO: Optimize this.
-            opj[ndx] += secondDerivLVQ(dj, dk, djP, dkP, djPP, dkPP);
-//            sav = wSqr * (tmpJ + tmpJ_ * diffJ);
-//            opk[ndx] += sav;
-//            check(secondDerivLVQ(dj, dk, djP, dkP, djPP, dkPP), sav, "opj''");
+            double dj_pjP = 2*w*w*diffJ, dj_pjPP = 2*w*w;
+            double dk_pkP = 2*w*w*diffK, dk_pkPP = 2*w*w;
+            double dk_pjP = 0, dj_pkP = 0;
+            double dk_pjPP = 0, dj_pkPP = 0;
+            opj[ndx] += secondDerivLVQ(dj, dk, dj_pjP, dk_pjP, dj_pjPP, dk_pjPP);
+            opk[ndx] += secondDerivLVQ(dj, dk, dj_pkP, dk_pkP, dj_pkPP, dk_pkPP);
 
-            djP = 0; dkP = 2*wSqr*diffJ;
-            djPP = 0; dkPP = 2*wSqr;
-            // TODO: Optimize this.
-            opk[ndx] += secondDerivLVQ(dj, dk, djP, dkP, djPP, dkPP);
-//            sav = wSqr * (tmpK + tmpK_ * diffK);
-//            opk[ndx] += sav;
-//            check(secondDerivLVQ(dj, dk, djP, dkP, djPP, dkPP), sav, "opk''");
-
-            djP = 2*w*diffJ*diffJ; dkP = 2*w*diffK*diffK;
-            djPP = 2*diffJ*diffJ; dkPP = 2*diffK*diffK;
-            // TODO: Optimize this.
-            oweights[ndx] += secondDerivLVQ(dj, dk, djP, dkP, djPP, dkPP);
-//            double sav = tmp/2*((djP-dkP)*(djP-dkP)*(dj-dk) - (dj+dk)*(djP*djP - dkP*dkP));
-//            oweights[ndx] += sav;
-//            check(secondDerivLVQ(dj, dk, djP, dkP, djPP, dkPP), sav, "oweights''");
+            double dj_wP = 2*w*diffJ*diffJ, dk_wP = 2*w*diffK*diffK;
+            double dj_wPP = 2*diffJ*diffJ, dk_wPP = 2*diffK*diffK;
+            oweights[ndx] += secondDerivLVQ(dj, dk, dj_wP, dk_wP, dj_wPP, dk_wPP);
         }
 
         return out;
     }
-
-    public void check(double a, double b, String str) {
-//    	System.out.printf("??? %f %f %s %f\n", a, b, str, Math.abs((a-b) / Math.min(a,b)));
-        if (Math.abs((a-b) / Math.min(a,b)) > 1e-4 && Math.abs(Math.max(a, b)) > 1e-10) {
-            System.out.println("SOMETHING WRONG!!! "+str+" "+a+" "+b);
-            //throw new IllegalStateException();
-        } else {
-            //System.out.println("Here");
-        }
-    }
     
-    private double firstDerivLVQ(double dj, double dk, double djP, double dkP) {
+    private static double firstDerivLVQ(double dj, double dk, double djP, double dkP) {
         double dSum = dj+dk;
         return 2*(dk*djP - dj*dkP)/(dSum*dSum);
     }
     
-    private double secondDerivLVQ(double dj, double dk, double djP, double dkP, double djPP, double dkPP) {
+    private static double secondDerivLVQ(double dj, double dk, double djP, double dkP, double djPP, double dkPP) {
         double dSum = dj+dk;
-        return (djPP-dkPP)/(dj+dk) - 2*(djP*djP-dkP*dkP)/(dSum*dSum) + (dj-dk)*(2*(djP-dkP)*(djP-dkP)/(dSum*dSum*dSum) - (djPP+dkPP)/(dSum*dSum));
+        return (djPP-dkPP)/dSum - 2*(djP-dkP)*(djP+dkP)/(dSum*dSum) + (dj-dk)*(2*(djP+dkP)*(djP+dkP)/(dSum*dSum*dSum) - (djPP+dkPP)/(dSum*dSum));
     }
 
     @Override

@@ -85,9 +85,17 @@ public class LabeledDataSet {
             assert (!line.hasNext());
         }
 
+        // Compensate for 1-index labels...
+        boolean hasZero = false;
+        for (int i : labels) {
+            if (i == 0) {
+                hasZero = true;
+                break;
+            }
+        }
         int[] labelsArr = new int[labels.size()];
         for (int i = 0; i < labelsArr.length; i++) {
-            labelsArr[i] = labels.get(i);
+            labelsArr[i] = labels.get(i) - (hasZero ? 0 : 1);
         }
 
         double[][] dataArr = new double[data.size()][dims];
@@ -158,7 +166,7 @@ public class LabeledDataSet {
 		
 		int holes = 0;
 		for (int i = 0; i < dims; i++) {
-			vars[i] = Math.sqrt(vars[i]);
+			vars[i] = Math.sqrt(vars[i] / (size-1));
 			if (vars[i] < EPS) {
 				if (!discardEmpty) {
 					throw new IllegalArgumentException("Feature "+i+" has (near-)zero variance.");
@@ -171,7 +179,7 @@ public class LabeledDataSet {
 		if (holes > 0) {
 			System.err.println("Removing "+holes+" holes...");
 		}
-		
+
 		double[][] newData = zscoreCopy(holes, means, vars);
 		return new LabeledDataSet(newData, this.labels);
     }
