@@ -20,6 +20,7 @@ public class VSGD<ParamType extends OptParam<ParamType>> extends AbstractOptimiz
     
     @Override
     public void init(SeparableCostFunction<ParamType> cf, ParamType initParams) {
+        super.init(cf, initParams);
         int size = cf.size();
         gs = initParams.zero();
         vs = initParams.zero();

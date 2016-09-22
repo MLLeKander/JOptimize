@@ -23,6 +23,11 @@ public class SGD<ParamType extends OptParam<ParamType>> extends
         return sgdEpoch(cf, params, learningRate);
     }
     
+    @Override
+    public void init(SeparableCostFunction<ParamType> cf, ParamType params) {
+        t = 0;
+    }
+    
     protected ParamType sgdEpoch(SeparableCostFunction<ParamType> cf, ParamType params, double learningRate) {
         ParamType out = params.copy();
         int size = cf.size();

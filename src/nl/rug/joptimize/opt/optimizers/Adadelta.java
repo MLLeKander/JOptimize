@@ -23,20 +23,19 @@ public class Adadelta<ParamType extends OptParam<ParamType>> extends AbstractOpt
     
     @Override
     public void init(SeparableCostFunction<ParamType> cf, ParamType initParams) {
+        super.init(cf, initParams);
         g = initParams.zero();
         delta = initParams.zero();
     }
     
     protected void adadeltaUpdate(ParamType params, ParamType grad) {
-        //System.out.println("adadeltaUpdate");
         g.multiply_s(rho).add_s(grad.dotprod(grad).multiply_s(1-rho));
         ParamType rmsGrad = g.add(eps).sqrt_s();
         ParamType rmsDelta = delta.add(eps).sqrt_s();
         rmsDelta = delta.one().multiply_s(0.01);
         ParamType newDelta = rmsDelta.dotprod_s(grad).dotprod_s(rmsGrad.inv_s());
-        delta.multiply_s(rho).add_s(newDelta.dotprod(newDelta).multiply_s(1-rho));
-        //System.out.println("===\ngrad:\n"+grad+"\ng:\n"+g+"\ndelta:\n"+delta);
-        params.add_s(newDelta.multiply_s(-1));
+        params.sub_s(newDelta);
+        delta.multiply_s(rho).add_s(newDelta.dotprod_s(newDelta).multiply_s(1-rho));
     }
 
     @Override
@@ -50,7 +49,6 @@ public class Adadelta<ParamType extends OptParam<ParamType>> extends AbstractOpt
         } else {
             for (int i = 0; i < size; i++) {
                 cf.deriv(outParams, rand.nextInt(size), grad);
-                //System.out.println("outer loop");
                 if ((i+1) % batchSize == 0) {
                     adadeltaUpdate(outParams, grad);
                     grad.zero_s();

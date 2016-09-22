@@ -2,6 +2,7 @@ package nl.rug.joptimize.opt;
 
 import nl.rug.joptimize.Arguments;
 import nl.rug.joptimize.opt.optimizers.Adadelta;
+import nl.rug.joptimize.opt.optimizers.Adam;
 import nl.rug.joptimize.opt.optimizers.BGD;
 import nl.rug.joptimize.opt.optimizers.ControlledBGD;
 import nl.rug.joptimize.opt.optimizers.ControlledSGD;
@@ -43,6 +44,10 @@ public class OptimizerFactory {
             return createAdadelta(args);
         } else if (name.equals("ADADELTABATCH")) {
             return createAdadeltaBatch(args);
+        } else if (name.equals("ADAM")) {
+            return createAdam(args);
+        } else if (name.equals("ADAMBATCH")) {
+            return createAdamBatch(args);
         }
         throw new IllegalArgumentException("Unknown optimizer: "+name);
     }
@@ -73,6 +78,14 @@ public class OptimizerFactory {
     
     public static <ParamType extends OptParam<ParamType>> Adadelta<ParamType> createAdadeltaBatch(Arguments a) {
         return new Adadelta<>(a.getLong("seed"),a.getInt("batchSize",Integer.MAX_VALUE),a.getDbl("rho",0.95),a.getDbl("epsilon"),a.getInt("tmax"));
+    }
+    
+    public static <ParamType extends OptParam<ParamType>> Adam<ParamType> createAdam(Arguments a) {
+        return new Adam<>(a.getLong("seed"),a.getInt("batchSize",1),a.getDbl("alpha",0.001),a.getDbl("beta1",0.9),a.getDbl("beta2",0.999),a.getDbl("epsilon"),a.getInt("tmax"));
+    }
+    
+    public static <ParamType extends OptParam<ParamType>> Adam<ParamType> createAdamBatch(Arguments a) {
+        return new Adam<>(a.getLong("seed"),a.getInt("batchSize",Integer.MAX_VALUE),a.getDbl("alpha",0.001),a.getDbl("beta1",0.9),a.getDbl("beta2",0.999),a.getDbl("epsilon"),a.getInt("tmax"));
     }
     
     public static <ParamType extends OptParam<ParamType>> SlowStartSGD<ParamType> createSlowStartSGD(Arguments a) {

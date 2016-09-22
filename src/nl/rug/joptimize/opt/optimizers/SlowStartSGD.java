@@ -23,6 +23,7 @@ public class SlowStartSGD<ParamType extends OptParam<ParamType>> extends SGD<Par
     
     @Override
     public void init(SeparableCostFunction<ParamType> cf, ParamType params) {
+        super.init(cf, params);
         double minErr = Double.MAX_VALUE;
         double minLearningRate = -1;
         for (double tmpLearningRate : initLearningRates) {
