@@ -291,6 +291,20 @@ public class GRLVQOptParam extends AbstractOptParam<GRLVQOptParam> {
     }
 
     @Override
+    public GRLVQOptParam sqrt_s() {
+        int protos = this.numProtos(), dims = this.dimensions();
+        for (int i = 0; i < protos; i++) {
+            for (int j = 0; j < dims; j++) {
+                this.prototypes[i][j] = Math.sqrt(this.prototypes[i][j]);
+            }
+        }
+        for (int i = 0; i < dims; i++) {
+            this.weights[i] = Math.sqrt(this.weights[i]);
+        }
+        return this;
+    }
+
+    @Override
     public GRLVQOptParam inv_s() {
         int protos = this.numProtos(), dims = this.dimensions();
         for (int i = 0; i < protos; i++) {
@@ -354,6 +368,20 @@ public class GRLVQOptParam extends AbstractOptParam<GRLVQOptParam> {
             if (this.weights[i] > o) {
                 this.weights[i] = o;
             }
+        }
+        return this;
+    }
+
+    @Override
+    public GRLVQOptParam add_s(double o) {
+        int protos = this.numProtos(), dims = this.dimensions();
+        for (int i = 0; i < protos; i++) {
+            for (int j = 0; j < dims; j++) {
+                this.prototypes[i][j] += o;
+            }
+        }
+        for (int i = 0; i < dims; i++) {
+            this.weights[i] += o;
         }
         return this;
     }

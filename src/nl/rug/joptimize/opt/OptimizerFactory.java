@@ -1,10 +1,12 @@
 package nl.rug.joptimize.opt;
 
 import nl.rug.joptimize.Arguments;
+import nl.rug.joptimize.opt.optimizers.Adadelta;
 import nl.rug.joptimize.opt.optimizers.BGD;
 import nl.rug.joptimize.opt.optimizers.ControlledBGD;
 import nl.rug.joptimize.opt.optimizers.ControlledSGD;
 import nl.rug.joptimize.opt.optimizers.SGD;
+import nl.rug.joptimize.opt.optimizers.SlowStartSGD;
 import nl.rug.joptimize.opt.optimizers.VSGD;
 import nl.rug.joptimize.opt.optimizers.WA_BGD;
 import nl.rug.joptimize.opt.optimizers.WA_SGD;
@@ -35,6 +37,12 @@ public class OptimizerFactory {
             return createControlledBGD(args);
         } else if (name.equals("CONTROLLEDSGD")) {
             return createControlledSGD(args);
+        } else if (name.equals("SLOWSTARTSGD")) {
+            return createSlowStartSGD(args);
+        } else if (name.equals("ADADELTA")) {
+            return createAdadelta(args);
+        } else if (name.equals("ADADELTABATCH")) {
+            return createAdadeltaBatch(args);
         }
         throw new IllegalArgumentException("Unknown optimizer: "+name);
     }
@@ -57,6 +65,28 @@ public class OptimizerFactory {
     
     public static <ParamType extends OptParam<ParamType>> WA_BGD<ParamType> createWABGD(Arguments a) {
         return new WA_BGD<>(a.getDbl("rate"),a.getInt("hist"),a.getDbl("loss",1),a.getDbl("gain",1),a.getDbl("epsilon"),a.getInt("tmax"));
+    }
+    
+    public static <ParamType extends OptParam<ParamType>> Adadelta<ParamType> createAdadelta(Arguments a) {
+        return new Adadelta<>(a.getLong("seed"),a.getInt("batchSize",1),a.getDbl("rho",0.95),a.getDbl("epsilon"),a.getInt("tmax"));
+    }
+    
+    public static <ParamType extends OptParam<ParamType>> Adadelta<ParamType> createAdadeltaBatch(Arguments a) {
+        return new Adadelta<>(a.getLong("seed"),a.getInt("batchSize",Integer.MAX_VALUE),a.getDbl("rho",0.95),a.getDbl("epsilon"),a.getInt("tmax"));
+    }
+    
+    public static <ParamType extends OptParam<ParamType>> SlowStartSGD<ParamType> createSlowStartSGD(Arguments a) {
+        double[] rates = {};
+        if (a.hasArg("rates")) {
+            String[] split = a.get("rates").split(",");
+            rates = new double[split.length];
+            for (int i = 0; i < split.length; i++) {
+                rates[i] = Double.valueOf(split[i]);
+            }
+        } else {
+            rates = new double[]{100,10,5,1,0.1,0.05,0.01,0.005,0.001,5e-4,1e-4};
+        }
+        return new SlowStartSGD<>(rates,a.getLong("seed"),a.getDbl("epsilon"),a.getInt("tmax"));
     }
     
     public static <ParamType extends OptParam<ParamType>> WaypointAverage<ParamType> createWA(Arguments a) {

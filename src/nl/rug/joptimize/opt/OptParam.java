@@ -23,6 +23,10 @@ public interface OptParam<ParamType extends OptParam<ParamType>> {
 
     public ParamType dotprod_s(ParamType o);
 
+    public ParamType sqrt();
+
+    public ParamType sqrt_s();
+
     public ParamType inv();
 
     public ParamType inv_s();
@@ -38,6 +42,10 @@ public interface OptParam<ParamType extends OptParam<ParamType>> {
     public ParamType ubound(double o);
 
     public ParamType ubound_s(double o);
+
+    public ParamType add(double o);
+
+    public ParamType add_s(double o);
 
     public ParamType multiply(double o);
 

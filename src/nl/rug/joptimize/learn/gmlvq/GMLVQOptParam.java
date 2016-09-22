@@ -346,6 +346,22 @@ public class GMLVQOptParam extends AbstractOptParam<GMLVQOptParam> {
     }
 
     @Override
+    public GMLVQOptParam sqrt_s() {
+        int protos = this.numProtos(), dims = this.dimensions(), weights = this.numWeights();
+        for (int i = 0; i < protos; i++) {
+            for (int j = 0; j < dims; j++) {
+                this.prototypes[i][j] = Math.sqrt(this.prototypes[i][j]);
+            }
+        }
+        for (int i = 0; i < weights; i++) {
+            for (int j = 0; j < dims; j++) {
+                this.weights[i][j] = Math.sqrt(this.weights[i][j]);
+            }
+        }
+        return this;
+    }
+
+    @Override
     public GMLVQOptParam inv_s() {
         int protos = this.numProtos(), dims = this.dimensions(), weights = this.numWeights();
         for (int i = 0; i < protos; i++) {
@@ -416,6 +432,22 @@ public class GMLVQOptParam extends AbstractOptParam<GMLVQOptParam> {
                 if (this.weights[i][j] > o) {
                     this.weights[i][j] = o;
                 }
+            }
+        }
+        return this;
+    }
+
+    @Override
+    public GMLVQOptParam add_s(double o) {
+        int protos = this.numProtos(), dims = this.dimensions(), weights = this.numWeights();
+        for (int i = 0; i < protos; i++) {
+            for (int j = 0; j < dims; j++) {
+                this.prototypes[i][j] += o;
+            }
+        }
+        for (int i = 0; i < weights; i++) {
+            for (int j = 0; j < dims; j++) {
+                this.weights[i][j] += o;
             }
         }
         return this;

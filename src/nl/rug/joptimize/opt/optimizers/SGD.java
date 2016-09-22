@@ -8,8 +8,9 @@ import nl.rug.joptimize.opt.SeparableCostFunction;
 
 public class SGD<ParamType extends OptParam<ParamType>> extends
         AbstractOptimizer<ParamType> {
-    private double learningRate;
-    private Random rand;
+    protected double learningRate;
+    protected Random rand;
+    protected int t = 0;
 
     public SGD(long seed, double learningRate, double epsilon, int tMax) {
         super(epsilon, tMax);
@@ -19,12 +20,18 @@ public class SGD<ParamType extends OptParam<ParamType>> extends
 
     @Override
     public ParamType optimizationStep(SeparableCostFunction<ParamType> cf, ParamType params) {
+        return sgdEpoch(cf, params, learningRate);
+    }
+    
+    protected ParamType sgdEpoch(SeparableCostFunction<ParamType> cf, ParamType params, double learningRate) {
         ParamType out = params.copy();
         int size = cf.size();
+        double effectiveLearningRate = learningRate / (1+ t/tMax);
         
         for (int i = 0; i < size; i++) {
-            out.sub_s(cf.deriv(out, rand.nextInt(size)).multiply_s(learningRate));
+            out.sub_s(cf.deriv(out, rand.nextInt(size)).multiply_s(effectiveLearningRate));
         }
+        t++;
         return out;
     }
 }

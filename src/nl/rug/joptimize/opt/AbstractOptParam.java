@@ -21,10 +21,16 @@ public abstract class AbstractOptParam<ParamType extends OptParam<ParamType>> im
     public ParamType dotprod(ParamType o) { return this.copy().dotprod_s(o); }
 
     @Override
+    public ParamType sqrt() { return this.copy().sqrt_s(); }
+
+    @Override
     public ParamType inv() { return this.copy().inv_s(); }
 
     @Override
     public ParamType abs() { return this.copy().abs_s(); }
+
+    @Override
+    public ParamType add(double o) { return this.copy().add_s(o); }
 
     @Override
     public ParamType multiply(double o) { return this.copy().multiply_s(o); }

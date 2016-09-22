@@ -46,6 +46,12 @@ public class SingleVarOptParam extends AbstractOptParam<SingleVarOptParam> {
     }
 
     @Override
+    public SingleVarOptParam sqrt_s() {
+        x = Math.sqrt(x);
+        return this;
+    }
+
+    @Override
     public SingleVarOptParam inv_s() {
         x = 1/x;
         return this;
@@ -72,6 +78,12 @@ public class SingleVarOptParam extends AbstractOptParam<SingleVarOptParam> {
         if (x < o) {
             x = o;
         }
+        return this;
+    }
+
+    @Override
+    public SingleVarOptParam add_s(double o) {
+        x += o;
         return this;
     }
 

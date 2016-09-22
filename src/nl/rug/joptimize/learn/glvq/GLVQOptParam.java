@@ -226,19 +226,6 @@ public class GLVQOptParam extends AbstractOptParam<GLVQOptParam> {
         return prototypes.length*prototypes[0].length;
     }
 
-
-    @Override
-    public GLVQOptParam add(GLVQOptParam o) {
-        double[][] newProtos = newProtos();
-        int protos = this.numProtos(), dims = this.dimensions();
-        for (int i = 0; i < protos; i++) {
-            for (int j = 0; j < dims; j++) {
-                newProtos[i][j] = this.prototypes[i][j] + o.prototypes[i][j];
-            }
-        }
-        return new GLVQOptParam(newProtos, this.labels, cMemo.size());
-    }
-
     @Override
     public GLVQOptParam add_s(GLVQOptParam o) {
         int protos = this.numProtos(), dims = this.dimensions();
@@ -248,18 +235,6 @@ public class GLVQOptParam extends AbstractOptParam<GLVQOptParam> {
             }
         }
         return this;
-    }
-
-    @Override
-    public GLVQOptParam sub(GLVQOptParam o) {
-        double[][] newProtos = newProtos();
-        int protos = this.numProtos(), dims = this.dimensions();
-        for (int i = 0; i < protos; i++) {
-            for (int j = 0; j < dims; j++) {
-                newProtos[i][j] = this.prototypes[i][j] - o.prototypes[i][j];
-            }
-        }
-        return new GLVQOptParam(newProtos, this.labels, cMemo.size());
     }
 
     @Override
@@ -274,11 +249,6 @@ public class GLVQOptParam extends AbstractOptParam<GLVQOptParam> {
     }
 
     @Override
-    public GLVQOptParam zero() {
-        return new GLVQOptParam(newProtos(), this.labels, cMemo.size());
-    }
-
-    @Override
     public GLVQOptParam zero_s() {
         for (double[] proto : this.prototypes) {
             Arrays.fill(proto, 0d);
@@ -287,32 +257,11 @@ public class GLVQOptParam extends AbstractOptParam<GLVQOptParam> {
     }
 
     @Override
-    public GLVQOptParam one() {
-        double[][] newProtos = newProtos();
-        for (double[] proto : newProtos) {
-            Arrays.fill(proto, 1d);
-        }
-        return new GLVQOptParam(newProtos, this.labels, cMemo.size());
-    }
-
-    @Override
     public GLVQOptParam one_s() {
         for (double[] proto : this.prototypes) {
             Arrays.fill(proto, 1d);
         }
         return this;
-    }
-
-    @Override
-    public GLVQOptParam dotprod(GLVQOptParam o) {
-        double[][] newProtos = newProtos();
-        int protos = this.numProtos(), dims = this.dimensions();
-        for (int i = 0; i < protos; i++) {
-            for (int j = 0; j < dims; j++) {
-                newProtos[i][j] = this.prototypes[i][j] * o.prototypes[i][j];
-            }
-        }
-        return new GLVQOptParam(newProtos, this.labels, cMemo.size());
     }
 
     @Override
@@ -327,15 +276,14 @@ public class GLVQOptParam extends AbstractOptParam<GLVQOptParam> {
     }
 
     @Override
-    public GLVQOptParam inv() {
-        double[][] newProtos = newProtos();
+    public GLVQOptParam sqrt_s() {
         int protos = this.numProtos(), dims = this.dimensions();
         for (int i = 0; i < protos; i++) {
             for (int j = 0; j < dims; j++) {
-                newProtos[i][j] = 1 / this.prototypes[i][j];
+                this.prototypes[i][j] = Math.sqrt(this.prototypes[i][j]);
             }
         }
-        return new GLVQOptParam(newProtos, this.labels, cMemo.size());
+        return this;
     }
 
     @Override
@@ -347,11 +295,6 @@ public class GLVQOptParam extends AbstractOptParam<GLVQOptParam> {
             }
         }
         return this;
-    }
-    
-    @Override
-    public GLVQOptParam abs() {
-        return this.copy().abs_s();
     }
     
     @Override
@@ -368,11 +311,6 @@ public class GLVQOptParam extends AbstractOptParam<GLVQOptParam> {
     }
 
     @Override
-    public GLVQOptParam lbound(double o) {
-        return this.copy().lbound_s(o);
-    }
-
-    @Override
     public GLVQOptParam lbound_s(double o) {
         int protos = this.numProtos(), dims = this.dimensions();
         for (int i = 0; i < protos; i++) {
@@ -383,11 +321,6 @@ public class GLVQOptParam extends AbstractOptParam<GLVQOptParam> {
             }
         }
         return this;
-    }
-
-    @Override
-    public GLVQOptParam ubound(double o) {
-        return this.copy().ubound_s(o);
     }
 
     @Override
@@ -404,15 +337,14 @@ public class GLVQOptParam extends AbstractOptParam<GLVQOptParam> {
     }
 
     @Override
-    public GLVQOptParam multiply(double o) {
-        double[][] newProtos = newProtos();
+    public GLVQOptParam add_s(double o) {
         int protos = this.numProtos(), dims = this.dimensions();
         for (int i = 0; i < protos; i++) {
             for (int j = 0; j < dims; j++) {
-                newProtos[i][j] = this.prototypes[i][j] * o;
+                this.prototypes[i][j] += o;
             }
         }
-        return new GLVQOptParam(newProtos, this.labels, cMemo.size());
+        return this;
     }
 
     @Override
