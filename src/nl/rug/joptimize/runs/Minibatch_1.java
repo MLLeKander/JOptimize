@@ -1,6 +1,6 @@
 package nl.rug.joptimize.runs;
 
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,7 +11,7 @@ import nl.rug.joptimize.opt.optimizers.Minibatch;
 
 public class Minibatch_1 extends AbstractCompositeRun {
 
-    public static void main(String[] args) throws FileNotFoundException {
+    public static void main(String[] args) throws IOException {
         new Minibatch_1().main_(args);
     }
 

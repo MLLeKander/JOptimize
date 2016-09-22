@@ -2,7 +2,7 @@
 package nl.rug.joptimize;
 
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 
 import nl.rug.joptimize.learn.LabeledDataSet;
 import nl.rug.joptimize.learn.grlvq.GRLVQClassifier;
@@ -22,7 +22,7 @@ public class LVQMain {
         System.exit(-1);
     }
     
-    public static void main(String[] argArr) throws FileNotFoundException {
+    public static void main(String[] argArr) throws IOException {
         Arguments args = new Arguments(argArr);
         if (!args.hasDefault()) {
             System.err.println("No data file given.");

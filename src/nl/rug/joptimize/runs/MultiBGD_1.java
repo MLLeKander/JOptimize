@@ -1,7 +1,7 @@
 package nl.rug.joptimize.runs;
 
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import nl.rug.joptimize.Arguments;
@@ -13,7 +13,7 @@ import nl.rug.joptimize.opt.optimizers.MultiBGD;
 
 public class MultiBGD_1 {
 
-    public static void main(String[] argArray) throws FileNotFoundException {
+    public static void main(String[] argArray) throws IOException {
         Arguments args = new Arguments(argArray);
         String fileName = args.hasDefault() ? args.getDefault() : "segment.dat";
         final LabeledDataSet ds = LabeledDataSet.parseDataFile(new File(fileName));

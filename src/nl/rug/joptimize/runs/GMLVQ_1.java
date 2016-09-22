@@ -1,7 +1,7 @@
 package nl.rug.joptimize.runs;
 
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -18,7 +18,7 @@ import nl.rug.joptimize.opt.optimizers.WA_SGD;
 
 public class GMLVQ_1 {
 
-    public static void main(String[] args) throws FileNotFoundException {
+    public static void main(String[] args) throws IOException {
         final LabeledDataSet ds = LabeledDataSet.parseDataFile(new File("segment.dat"));
         double[][] protos = ds.averageProtos();
         double[][] weights = new double[ds.dimensions()][ds.dimensions()];

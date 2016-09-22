@@ -32,6 +32,21 @@ public class GMLVQOptParam extends AbstractOptParam<GMLVQOptParam> {
         }
     }
 
+    public GMLVQOptParam(double[][] prototypes, int[] labels, int rank, long seed) {
+        this.prototypes = prototypes;
+        this.labels = labels;
+        int dims = prototypes[0].length;
+        
+        this.weights = new double[rank][dims];
+        Random r = new Random(seed);
+        for (int i = 0; i < rank; i++) {
+            for (int j = 0; j < dims; j++) {
+                this.weights[i][j] = r.nextGaussian();
+            }
+        }
+        normalize(weights);
+    }
+
     public GMLVQOptParam(double[][] prototypes, int classes) {
         int[] ppc = new int[classes];
         Arrays.fill(ppc, 1);
@@ -47,6 +62,10 @@ public class GMLVQOptParam extends AbstractOptParam<GMLVQOptParam> {
 
     public GMLVQOptParam(LabeledDataSet ds) {
         this(ds.averageProtos(), ds.labels());
+    }
+
+    public GMLVQOptParam(LabeledDataSet ds, int rank, long seed) {
+        this(ds.averageProtos(), ds.labels(), rank, seed);
     }
 
     public GMLVQOptParam(int prototypesPerClass, int classes, int dimensions) {

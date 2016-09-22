@@ -3,7 +3,7 @@
 package nl.rug.joptimize.runs;
 
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Random;
 
@@ -42,7 +42,7 @@ public class GMLVQPapari_1 {
         new File(path).mkdir();
     }
     
-    public static void main(String[] argArr) throws FileNotFoundException {
+    public static void main(String[] argArr) throws IOException {
         Arguments args = new Arguments(argArr);
         if (!args.hasDefault()) {
             System.err.println("No data file given.");
@@ -101,7 +101,8 @@ public class GMLVQPapari_1 {
         CountObserver<GMLVQOptParam> counter = new CountObserver<>();
         opt.addObs(counter);
         
-        GMLVQOptParam p = new GMLVQOptParam(ds);
+        GMLVQOptParam p = args.hasArg("rank") ? new GMLVQOptParam(ds, args.getInt("rank"), args.getLong("seed")): new GMLVQOptParam(ds);
+        System.out.println(p.weights.length);
         //System.out.println("init:\n"+p);
         p.normalizeWeights();
         if (args.hasArg("initseed")) {

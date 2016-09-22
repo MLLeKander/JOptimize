@@ -1,7 +1,7 @@
 package nl.rug.joptimize.runs;
 
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.List;
 
 import nl.rug.joptimize.Arguments;
@@ -13,7 +13,7 @@ import nl.rug.joptimize.opt.optimizers.Composite;
 
 public abstract class AbstractCompositeRun {
     protected LabeledDataSet ds;
-    public void main_(String[] argArray) throws FileNotFoundException {
+    public void main_(String[] argArray) throws IOException {
         Arguments args = new Arguments(argArray);
         String fileName = args.hasDefault() ? args.getDefault() : "segment.dat";
         ds = LabeledDataSet.parseDataFile(new File(fileName));
