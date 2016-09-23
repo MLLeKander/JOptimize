@@ -58,13 +58,13 @@ public class GMLVQPapari_1 {
         
         LabeledDataSet dsTmp = LabeledDataSet.parseDataFile(new File(args.getDefault()));
         LabeledDataSet dsTestTmp = null;
+        if (args.getBool("zscore", false)) {
+            dsTmp = dsTmp.zscore();
+        }
         if (args.hasArg("split")) {
             SplitLabeledDataSet split = dsTmp.split(args.getInt("split"),args.getLong("splitSeed"));
             dsTmp = split.a;
             dsTestTmp = split.b;
-        }
-        if (args.getBool("zscore", false)) {
-            dsTmp = dsTmp.zscore();
         }
         final LabeledDataSet ds = dsTmp;
         final LabeledDataSet dsTest = dsTestTmp; 
@@ -100,9 +100,9 @@ public class GMLVQPapari_1 {
         
         CountObserver<GMLVQOptParam> counter = new CountObserver<>();
         opt.addObs(counter);
-        
+
+        //System.out.println(args.getDefault()+","+ds.size()+","+ds.dimensions()+","+ds.classes());
         GMLVQOptParam p = args.hasArg("rank") ? new GMLVQOptParam(ds, args.getInt("rank"), args.getLong("seed")): new GMLVQOptParam(ds);
-        System.out.println(p.weights.length);
         //System.out.println("init:\n"+p);
         p.normalizeWeights();
         if (args.hasArg("initseed")) {
