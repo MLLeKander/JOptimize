@@ -29,23 +29,38 @@ public class Rprop<ParamType extends OptParam<ParamType>> extends AbstractOptimi
 
     @Override
     public ParamType optimizationStep(SeparableCostFunction<ParamType> cf, ParamType params) {
-/*
-    get current grad
-    for each dimension:
-      if signs agree:
-        delta = min(delta*gain, maxDelta)
-        w = w - sign(grad) * delta
-        prevGrad = grad
-    
-      if signs disagree:
-        delta = max(delta*loss, minDelta)
-        prevGrad = 0
-      
-      if prevGrad was 0:
-        w = w - sign(grad) * delta
-        prevGrad = grad
- */
+
         ParamType grad = cf.deriv(params);
+
+        for (int i = 0; i < grad.length(); i++) {
+            double gradTmp = grad.get(i);
+            double agreement = gradTmp*prevGrad.get(i), newDelta;
+            if (agreement > 0) {
+                delta.set(i, newDelta = Math.min(delta.get(i)*gain, maxDelta));
+            } else {
+                delta.set(i, newDelta = Math.max(delta.get(i)*loss, minDelta));
+            }
+            double newW = params.get(i) - Math.signum(gradTmp) * newDelta;
+            grad.set(i, newW);
+            prevGrad.set(i, gradTmp);
+        }
+/*
+        get current grad
+        for each dimension:
+          if signs agree:
+            delta = min(delta*gain, maxDelta)
+            w = w - sign(grad) * delta
+            prevGrad = grad
+        
+          if signs disagree:
+            delta = max(delta*loss, minDelta)
+            prevGrad = 0
+          
+          if prevGrad was 0:
+            w = w - sign(grad) * delta
+            prevGrad = grad
+ */
+        /*
         for (int i = 0; i < grad.length(); i++) {
             double gradTmp = grad.get(i);
             double agreement = gradTmp*prevGrad.get(i);
@@ -63,7 +78,8 @@ public class Rprop<ParamType extends OptParam<ParamType>> extends AbstractOptimi
                 grad.set(i, newW);
                 prevGrad.set(i, gradTmp);
             }
-        }
+        }*/
+        
         return grad;
     }
     

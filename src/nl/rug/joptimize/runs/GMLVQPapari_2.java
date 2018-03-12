@@ -29,9 +29,9 @@ public class GMLVQPapari_2 extends AbstractRunner<GMLVQOptParam> {
             double loss = a.getDbl("loss",1.5);
             double gain = a.getDbl("gain",1.1);
             boolean normalize = a.getBool("normalize", true);
-            double eps = a.getDbl("epsilon");
-            int tmax = a.getInt("tmax");
-            long nsmax = a.getLong("nsmax");
+            double eps = a.getDbl("epsilon",-1);
+            int tmax = a.getInt("tmax",200);
+            long nsmax = a.getLong("nsmax",-1);
             return new GMLVQPapari(prate,mrate,hist,loss,gain,normalize,eps,tmax,nsmax);
         } else {
             return OptimizerFactory.createOptimizer(a);

@@ -25,8 +25,6 @@ public class OptimizerFactory {
             return createBGD(args);
         } else if (name.equals("SGD")) {
             return createSGD(args);
-        } else if (name.equals("VSGD")) {
-            return createVSGD(args);
         } else if (name.equals("WABGD")) {
             return createWABGD(args);
         } else if (name.equals("WASGD")) {
@@ -39,6 +37,10 @@ public class OptimizerFactory {
             return createControlledSGD(args);
         } else if (name.equals("SLOWSTARTSGD")) {
             return createSlowStartSGD(args);
+        } else if (name.equals("VSGD")) {
+            return createVSGD(args);
+        } else if (name.equals("VSGDBATCH")) {
+            return createVSGDBatch(args);
         } else if (name.equals("ADADELTA")) {
             return createAdadelta(args);
         } else if (name.equals("ADADELTABATCH")) {
@@ -51,6 +53,8 @@ public class OptimizerFactory {
             return createRprop(args);
         } else if (name.equals("RMSPROP")) {
             return createRMSprop(args);
+        } else if (name.equals("RMSPROPBATCH")) {
+            return createRMSpropBatch(args);
         }
         throw new IllegalArgumentException("Unknown optimizer: "+name);
     }
@@ -63,10 +67,6 @@ public class OptimizerFactory {
         return new SGD<>(a.getLong("seed",1),a.getDbl("rate"), a.getDbl("epsilon",-1), a.getInt("tmax",200),a.getLong("nsmax",-1));
     }
     
-    public static <ParamType extends OptParam<ParamType>> VSGD<ParamType> createVSGD(Arguments a) {
-        return new VSGD<>(a.getLong("seed",1),a.getDbl("epsilon",-1),a.getInt("tmax",200),a.getLong("nsmax",-1));
-    }
-    
     public static <ParamType extends OptParam<ParamType>> WA_SGD<ParamType> createWASGD(Arguments a) {
         return new WA_SGD<>(a.getLong("seed", 1),a.getDbl("rate"),a.getInt("hist"),a.getDbl("loss",1),a.getDbl("gain",1),a.getDbl("epsilon",-1),a.getInt("tmax",200),a.getLong("nsmax",-1));
     }
@@ -75,8 +75,16 @@ public class OptimizerFactory {
         return new WA_BGD<>(a.getDbl("rate",1),a.getInt("hist",5),a.getDbl("loss",1.5),a.getDbl("gain",1.1),a.getDbl("epsilon",-1),a.getInt("tmax",200),a.getLong("nsmax",-1));
     }
     
+    public static <ParamType extends OptParam<ParamType>> VSGD<ParamType> createVSGD(Arguments a) {
+        return new VSGD<>(a.getLong("seed",1),a.getInt("batchSize",32),a.getDbl("epsilon",-1),a.getInt("tmax",200),a.getLong("nsmax",-1));
+    }
+    
+    public static <ParamType extends OptParam<ParamType>> VSGD<ParamType> createVSGDBatch(Arguments a) {
+        return new VSGD<>(a.getLong("seed",1),a.getInt("batchSize",Integer.MAX_VALUE),a.getDbl("epsilon",-1),a.getInt("tmax",200),a.getLong("nsmax",-1));
+    }
+    
     public static <ParamType extends OptParam<ParamType>> Adadelta<ParamType> createAdadelta(Arguments a) {
-        return new Adadelta<>(a.getLong("seed"),a.getInt("batchSize",1),a.getDbl("rho",0.95),a.getDbl("epsilon",-1),a.getInt("tmax",200),a.getLong("nsmax",-1));
+        return new Adadelta<>(a.getLong("seed"),a.getInt("batchSize",32),a.getDbl("rho",0.95),a.getDbl("epsilon",-1),a.getInt("tmax",200),a.getLong("nsmax",-1));
     }
     
     public static <ParamType extends OptParam<ParamType>> Adadelta<ParamType> createAdadeltaBatch(Arguments a) {
@@ -84,7 +92,7 @@ public class OptimizerFactory {
     }
     
     public static <ParamType extends OptParam<ParamType>> Adam<ParamType> createAdam(Arguments a) {
-        return new Adam<>(a.getLong("seed"),a.getInt("batchSize",1),a.getDbl("alpha",0.001),a.getDbl("beta1",0.9),a.getDbl("beta2",0.999),a.getDbl("epsilon",-1),a.getInt("tmax",200),a.getLong("nsmax",-1));
+        return new Adam<>(a.getLong("seed"),a.getInt("batchSize",32),a.getDbl("alpha",0.001),a.getDbl("beta1",0.9),a.getDbl("beta2",0.999),a.getDbl("epsilon",-1),a.getInt("tmax",200),a.getLong("nsmax",-1));
     }
     
     public static <ParamType extends OptParam<ParamType>> Adam<ParamType> createAdamBatch(Arguments a) {
@@ -96,7 +104,11 @@ public class OptimizerFactory {
     }
     
     public static <ParamType extends OptParam<ParamType>> RMSprop<ParamType> createRMSprop(Arguments a) {
-        return new RMSprop<>(a.getLong("seed"),a.getInt("batchSize",1),a.getDbl("rate",0.001),a.getDbl("rho",0.9),a.getDbl("epsilon",-1),a.getInt("tmax",200),a.getLong("nsmax",-1));
+        return new RMSprop<>(a.getLong("seed"),a.getInt("batchSize",32),a.getDbl("rate",0.001),a.getDbl("rho",0.9),a.getDbl("epsilon",-1),a.getInt("tmax",200),a.getLong("nsmax",-1));
+    }
+    
+    public static <ParamType extends OptParam<ParamType>> RMSprop<ParamType> createRMSpropBatch(Arguments a) {
+        return new RMSprop<>(a.getLong("seed"),a.getInt("batchSize",Integer.MAX_VALUE),a.getDbl("rate",0.001),a.getDbl("rho",0.9),a.getDbl("epsilon",-1),a.getInt("tmax",200),a.getLong("nsmax",-1));
     }
     
     public static <ParamType extends OptParam<ParamType>> SlowStartSGD<ParamType> createSlowStartSGD(Arguments a) {
