@@ -18,8 +18,8 @@ public class GMLVQPapari extends AbstractOptimizer<GMLVQOptParam> {
     private double gain;
     private boolean useNormalization;
 
-    public GMLVQPapari(double initProtoLearningRate, double initMatrixLearningRate, int histSize, double loss, double gain, boolean useNormalization, double epsilon, int tMax) {
-        super(epsilon, tMax);
+    public GMLVQPapari(double initProtoLearningRate, double initMatrixLearningRate, int histSize, double loss, double gain, boolean useNormalization, double epsilon, int tMax, long nsMax) {
+        super(epsilon, tMax, nsMax);
         this.initProtoLearningRate = initProtoLearningRate;
         this.initMatrixLearningRate = initMatrixLearningRate;
         this.histSize = histSize;
@@ -29,8 +29,8 @@ public class GMLVQPapari extends AbstractOptimizer<GMLVQOptParam> {
         this.useNormalization = useNormalization;
     }
 
-    public GMLVQPapari(double initProtoLearningRate, double initMatrixLearningRate, int histSize, double loss, double gain, double epsilon, int tMax) {
-        this(initProtoLearningRate, initMatrixLearningRate, histSize, loss, gain, true, epsilon, tMax);
+    public GMLVQPapari(double initProtoLearningRate, double initMatrixLearningRate, int histSize, double loss, double gain, double epsilon, int tMax, long nsMax) {
+        this(initProtoLearningRate, initMatrixLearningRate, histSize, loss, gain, true, epsilon, tMax, nsMax);
     }
     
     @Override

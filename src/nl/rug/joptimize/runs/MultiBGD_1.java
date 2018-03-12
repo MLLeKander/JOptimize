@@ -35,7 +35,7 @@ public class MultiBGD_1 {
         }
         System.out.println(learningRates);
         GMLVQOptParam init = new GMLVQOptParam(protos, weights, labels);
-        final MultiBGD<GMLVQOptParam> opt = new MultiBGD<>(learningRates, eps, tMax);
+        final MultiBGD<GMLVQOptParam> opt = new MultiBGD<>(learningRates, eps, tMax, -1);
         
         final long start = System.nanoTime();
         opt.addObs(new OptObserver<GMLVQOptParam>() {

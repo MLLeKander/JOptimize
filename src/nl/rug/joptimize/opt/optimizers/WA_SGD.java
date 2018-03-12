@@ -18,8 +18,8 @@ public class WA_SGD<ParamType extends OptParam<ParamType>> extends AbstractOptim
     private double gain;
     private Random rand;
     
-    public WA_SGD(long seed, double initialLearningRate, int histSize, double loss, double gain, double epsilon, int tMax) {
-        super(epsilon, tMax);
+    public WA_SGD(long seed, double initialLearningRate, int histSize, double loss, double gain, double epsilon, int tMax, long nsMax) {
+        super(epsilon, tMax, nsMax);
         this.initLearningRate = initialLearningRate;
         this.histSize = histSize;
         this.histInv = 1./histSize;

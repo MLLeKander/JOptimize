@@ -14,8 +14,8 @@ public class WaypointAverage<ParamType extends OptParam<ParamType>> extends Abst
     private Optimizer<ParamType> base;
     private ParamType runningSum;
 
-    public WaypointAverage(Optimizer<ParamType> base, int histSize, double epsilon, int tMax) {
-        super(epsilon, tMax);
+    public WaypointAverage(Optimizer<ParamType> base, int histSize, double epsilon, int tMax, long nsMax) {
+        super(epsilon, tMax, nsMax);
         this.histSize = histSize;
         this.histInv = 1./histSize;
         this.base = base;

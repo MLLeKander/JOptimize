@@ -15,8 +15,8 @@ public class Adadelta<ParamType extends OptParam<ParamType>> extends AbstractOpt
 
     private final static double eps = 1e-8;
 
-    public Adadelta(long seed, int batchSize, double rho, double epsilon, int tMax) {
-        super(epsilon, tMax);
+    public Adadelta(long seed, int batchSize, double rho, double epsilon, int tMax, long nsMax) {
+        super(epsilon, tMax, nsMax);
         this.rand = new Random(seed);
         this.batchSize = batchSize;
         this.rho = rho;

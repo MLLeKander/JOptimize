@@ -16,13 +16,9 @@ public class WA_BGD<ParamType extends OptParam<ParamType>> extends
     private ParamType runningSum;
     private double loss;
     private double gain;
-    
-    public WA_BGD(double initialLearningRate, double epsilon, int tMax, int histSize, double loss) {
-        this(initialLearningRate, histSize, loss, 1, epsilon, tMax);
-    }
 
-    public WA_BGD(double initialLearningRate, int histSize, double loss, double gain, double epsilon, int tMax) {
-        super(epsilon, tMax);
+    public WA_BGD(double initialLearningRate, int histSize, double loss, double gain, double epsilon, int tMax, long nsMax) {
+        super(epsilon, tMax, nsMax);
         this.initLearningRate = initialLearningRate;
         this.histSize = histSize;
         this.histInv = 1./histSize;

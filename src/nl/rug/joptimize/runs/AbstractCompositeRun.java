@@ -28,7 +28,7 @@ public abstract class AbstractCompositeRun {
             labels[i] = i;
         }
         GMLVQOptParam init = new GMLVQOptParam(protos, weights, labels);
-        AbstractOptimizer<GMLVQOptParam> opt = new Composite<>(getOpts(),1e-5,5000);
+        AbstractOptimizer<GMLVQOptParam> opt = new Composite<>(getOpts(),1e-5,5000,-1);
 //        final long start = System.nanoTime();
         System.out.println("---- "+opt);
 //        opt.addObs(new OptObserver<GMLVQOptParam>() {

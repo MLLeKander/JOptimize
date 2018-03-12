@@ -12,8 +12,8 @@ public class ControlledBGD<ParamType extends OptParam<ParamType>> extends
     private double gain;
     protected double prevErr;
 
-	public ControlledBGD(double initialLearningRate, double loss, double gain, double epsilon, int tMax) {
-        super(epsilon, tMax);
+	public ControlledBGD(double initialLearningRate, double loss, double gain, double epsilon, int tMax, long nsMax) {
+        super(epsilon, tMax, nsMax);
         this.initLearningRate = initialLearningRate;
         this.loss = loss;
         this.gain = gain;

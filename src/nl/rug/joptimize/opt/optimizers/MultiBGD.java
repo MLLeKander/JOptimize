@@ -11,8 +11,8 @@ public class MultiBGD<ParamType extends OptParam<ParamType>> extends
     protected double[] learningRates;
     public double minErr, minRate;
     
-    public MultiBGD(Collection<Double> learningRates, double epsilon, int tMax) {
-        super(epsilon, tMax);
+    public MultiBGD(Collection<Double> learningRates, double epsilon, int tMax, long nsMax) {
+        super(epsilon, tMax, nsMax);
         this.learningRates = new double[learningRates.size()];
         int i = 0;
         for (Double d : learningRates) {
@@ -20,8 +20,8 @@ public class MultiBGD<ParamType extends OptParam<ParamType>> extends
         }
     }
 
-    public MultiBGD(double[] learningRates, double epsilon, int tMax) {
-        super(epsilon, tMax);
+    public MultiBGD(double[] learningRates, double epsilon, int tMax, long nsMax) {
+        super(epsilon, tMax, nsMax);
         this.learningRates = learningRates;
     }
 

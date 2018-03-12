@@ -32,7 +32,8 @@ public class GMLVQPapari_1 {
             boolean normalize = a.getBool("normalize", true);
             double eps = a.getDbl("epsilon");
             int tmax = a.getInt("tmax");
-            return new GMLVQPapari(prate,mrate,hist,loss,gain,normalize,eps,tmax);
+            long nsmax = a.getLong("nsmax");
+            return new GMLVQPapari(prate,mrate,hist,loss,gain,normalize,eps,tmax,nsmax);
         } else {
             return OptimizerFactory.createOptimizer(a);
         }

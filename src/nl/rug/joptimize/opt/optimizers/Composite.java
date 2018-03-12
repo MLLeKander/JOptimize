@@ -10,8 +10,8 @@ import nl.rug.joptimize.opt.SeparableCostFunction;
 public class Composite<ParamType extends OptParam<ParamType>> extends AbstractOptimizer<ParamType> {
     private Collection<? extends Optimizer<ParamType>> bases;
 
-    public Composite(Collection<? extends Optimizer<ParamType>> bases, double epsilon, int tMax) {
-        super(epsilon, tMax);
+    public Composite(Collection<? extends Optimizer<ParamType>> bases, double epsilon, int tMax, long nsMax) {
+        super(epsilon, tMax, nsMax);
         this.bases = bases;
     }
 

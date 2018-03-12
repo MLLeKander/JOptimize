@@ -8,8 +8,8 @@ public class BGD<ParamType extends OptParam<ParamType>> extends
         AbstractOptimizer<ParamType> {
     protected double learningRate;
 
-    public BGD(double learningRate, double epsilon, int tMax) {
-        super(epsilon, tMax);
+    public BGD(double learningRate, double epsilon, int tMax, long nsMax) {
+        super(epsilon, tMax, nsMax);
         this.learningRate = learningRate;
     }
 

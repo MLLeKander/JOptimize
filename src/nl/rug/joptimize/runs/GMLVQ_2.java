@@ -31,7 +31,7 @@ public class GMLVQ_2 {
             labels[i] = i;
         }
         GMLVQOptParam init = new GMLVQOptParam(protos, weights, labels);
-        AbstractOptimizer<GMLVQOptParam> opt = new Composite<>(getOpts(),1e-5,5000);
+        AbstractOptimizer<GMLVQOptParam> opt = new Composite<>(getOpts(),1e-5,5000,-1);
         final long start = System.nanoTime();
         System.out.println("---- "+opt);
         opt.addObs(new OptObserver<GMLVQOptParam>() {
@@ -62,12 +62,12 @@ public class GMLVQ_2 {
         double eps = 1e-5;
         int tMax = 5000, seed = 5;
         List<AbstractOptimizer<GMLVQOptParam>> opts = Arrays.asList(
-                (AbstractOptimizer<GMLVQOptParam>) new VSGD<GMLVQOptParam>(seed, eps, tMax),
+                (AbstractOptimizer<GMLVQOptParam>) new VSGD<GMLVQOptParam>(seed, eps, tMax, -1),
                 (AbstractOptimizer<GMLVQOptParam>) new MultiBGD<GMLVQOptParam>(Arrays.asList(0.0001,0.0005,0.001,0.005,0.01, 0.05,
-                        0.1, 0.5, 1., 5., 10., 50.), eps, tMax),
-                (AbstractOptimizer<GMLVQOptParam>) new SGD<GMLVQOptParam>(seed, 0.1, eps, tMax),
-                (AbstractOptimizer<GMLVQOptParam>) new WA_BGD<GMLVQOptParam>(0.1, 5, 0.9, 1.1, eps, tMax),
-                (AbstractOptimizer<GMLVQOptParam>) new WA_SGD<GMLVQOptParam>(seed,0.1, 5, 0.9, 1.1, eps, tMax)
+                        0.1, 0.5, 1., 5., 10., 50.), eps, tMax, -1),
+                (AbstractOptimizer<GMLVQOptParam>) new SGD<GMLVQOptParam>(seed, 0.1, eps, tMax, -1),
+                (AbstractOptimizer<GMLVQOptParam>) new WA_BGD<GMLVQOptParam>(0.1, 5, 0.9, 1.1, eps, tMax, -1),
+                (AbstractOptimizer<GMLVQOptParam>) new WA_SGD<GMLVQOptParam>(seed,0.1, 5, 0.9, 1.1, eps, tMax, -1)
         );
         return opts;
     }

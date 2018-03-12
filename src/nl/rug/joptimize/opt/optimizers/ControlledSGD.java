@@ -15,8 +15,8 @@ public class ControlledSGD<ParamType extends OptParam<ParamType>> extends
     protected double prevErr;
     private Random rand;
 
-	public ControlledSGD(long seed, double initialLearningRate, double loss, double gain, double epsilon, int tMax) {
-        super(epsilon, tMax);
+	public ControlledSGD(long seed, double initialLearningRate, double loss, double gain, double epsilon, int tMax, long nsMax) {
+        super(epsilon, tMax, nsMax);
         this.initLearningRate = initialLearningRate;
         this.loss = loss;
         this.gain = gain;

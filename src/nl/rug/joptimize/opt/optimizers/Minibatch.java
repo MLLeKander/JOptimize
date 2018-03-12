@@ -12,8 +12,8 @@ public class Minibatch<ParamType extends OptParam<ParamType>> extends
     private Random rand;
     private int batches;
 
-    public Minibatch(long seed, double learningRate, int batches, double epsilon, int tMax) {
-        super(epsilon, tMax);
+    public Minibatch(long seed, double learningRate, int batches, double epsilon, int tMax, long nsMax) {
+        super(epsilon, tMax, nsMax);
         this.learningRate = learningRate;
         this.rand = new Random(seed);
         this.batches = batches;

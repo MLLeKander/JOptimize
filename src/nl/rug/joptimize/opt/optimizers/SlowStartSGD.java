@@ -8,16 +8,16 @@ import nl.rug.joptimize.opt.SeparableCostFunction;
 public class SlowStartSGD<ParamType extends OptParam<ParamType>> extends SGD<ParamType> {
     protected double[] initLearningRates;
     
-    public SlowStartSGD(Collection<Double> learningRates, long seed, double epsilon, int tMax) {
-        super(seed, -1, epsilon, tMax);
+    public SlowStartSGD(Collection<Double> learningRates, long seed, double epsilon, int tMax, long nsMax) {
+        super(seed, -1, epsilon, tMax, nsMax);
         int i = 0;
         for (Double d : learningRates) {
             this.initLearningRates[i++] = d;
         }
     }
     
-    public SlowStartSGD(double[] learningRates, long seed, double epsilon, int tMax) {
-        super(seed, -1, epsilon, tMax);
+    public SlowStartSGD(double[] learningRates, long seed, double epsilon, int tMax, long nsMax) {
+        super(seed, -1, epsilon, tMax, nsMax);
         this.initLearningRates = learningRates;
     }
     

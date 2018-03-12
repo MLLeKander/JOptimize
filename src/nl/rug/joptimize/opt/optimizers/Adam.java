@@ -14,8 +14,8 @@ public class Adam<ParamType extends OptParam<ParamType>> extends AbstractOptimiz
 
     private final static double eps = 1e-8;
 
-    public Adam(long seed, int batchSize, double alpha, double beta1, double beta2, double epsilon, int tMax) {
-        super(epsilon, tMax);
+    public Adam(long seed, int batchSize, double alpha, double beta1, double beta2, double epsilon, int tMax, long nsMax) {
+        super(epsilon, tMax, nsMax);
         this.rand = new Random(seed);
         this.batchSize = batchSize;
         this.beta1 = beta1;

@@ -13,8 +13,8 @@ public class VSGD<ParamType extends OptParam<ParamType>> extends AbstractOptimiz
     private final static double eps = 1e-10;
     private final static int C = 10;
 
-    public VSGD(long seed, double epsilon, int tMax) {
-        super(epsilon, tMax);
+    public VSGD(long seed, double epsilon, int tMax, long nsMax) {
+        super(epsilon, tMax, nsMax);
         rand = new Random(seed);
     }
     

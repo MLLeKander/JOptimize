@@ -13,8 +13,8 @@ public class SGD<ParamType extends OptParam<ParamType>> extends
     protected Random rand;
     protected int t = 0;
 
-    public SGD(long seed, double learningRate, double epsilon, int tMax) {
-        super(epsilon, tMax);
+    public SGD(long seed, double learningRate, double epsilon, int tMax, long nsMax) {
+        super(epsilon, tMax, nsMax);
         this.learningRate = learningRate;
         this.rand = new Random(seed);
     }
