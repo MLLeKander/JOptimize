@@ -31,7 +31,6 @@ public class SigmoidCostFunction<ParamType extends OptParam<ParamType>> extends 
 
     @Override
     public ParamType hesseDiag(ParamType params, int exampleNdx, ParamType out) {
-        // TODO Auto-generated method stub
         // S''(x) = (S(x)-S(x)^2)*a*x'' + a*a*x'*x'*(1-2*S(x))*(S(x)-S(x)^2)
         //        = (x'*x'*a*a*(1-2*S(x)) + a*x'')*(S(x)-S(x)^2)
         double s = error(params, exampleNdx);

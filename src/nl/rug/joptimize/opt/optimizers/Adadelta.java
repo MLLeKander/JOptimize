@@ -8,6 +8,7 @@ import nl.rug.joptimize.opt.SeparableCostFunction;
 
 public class Adadelta<ParamType extends OptParam<ParamType>> extends AbstractOptimizer<ParamType> { 
     protected Random rand;
+    protected ParamType newDelta;
     protected ParamType g, delta;
     protected int batchSize;
     protected double rho;
@@ -24,6 +25,7 @@ public class Adadelta<ParamType extends OptParam<ParamType>> extends AbstractOpt
     @Override
     public void init(SeparableCostFunction<ParamType> cf, ParamType initParams) {
         super.init(cf, initParams);
+        newDelta = initParams;
         g = initParams.zero();
         delta = initParams.zero();
     }
@@ -32,10 +34,9 @@ public class Adadelta<ParamType extends OptParam<ParamType>> extends AbstractOpt
         g.multiply_s(rho).add_s(grad.dotprod(grad).multiply_s(1-rho));
         ParamType rmsGrad = g.add(eps).sqrt_s();
         ParamType rmsDelta = delta.add(eps).sqrt_s();
-        rmsDelta = delta.one().multiply_s(0.01);
-        ParamType newDelta = rmsDelta.dotprod_s(grad).dotprod_s(rmsGrad.inv_s());
+        newDelta = rmsDelta.dotprod_s(grad).dotprod_s(rmsGrad.inv_s());
         params.sub_s(newDelta);
-        delta.multiply_s(rho).add_s(newDelta.dotprod_s(newDelta).multiply_s(1-rho));
+        delta.multiply_s(rho).add_s(newDelta.dotprod(newDelta).multiply_s(1-rho));
     }
 
     @Override
@@ -61,5 +62,10 @@ public class Adadelta<ParamType extends OptParam<ParamType>> extends AbstractOpt
         
         
         return outParams;
+    }
+    
+    @Override
+    public String toString() {
+        return newDelta.simplifiedToString();
     }
 }

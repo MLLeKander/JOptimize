@@ -3,31 +3,17 @@ package nl.rug.joptimize.learn.grlvq;
 import nl.rug.joptimize.learn.Classifier;
 import nl.rug.joptimize.learn.LabeledDataSet;
 import nl.rug.joptimize.opt.Optimizer;
+import nl.rug.joptimize.opt.SeparableCostFunction;
 
-public class GRLVQClassifier implements Classifier {
+public class GRLVQClassifier implements Classifier<GRLVQOptParam> {
 
     GRLVQOptParam params;
     GRLVQOptParam init;
-    public GRLVQCostFunction cf;
     Optimizer<GRLVQOptParam> opt;
 
-    public GRLVQClassifier(LabeledDataSet ds, Optimizer<GRLVQOptParam> opt, GRLVQOptParam init) {
+    public GRLVQClassifier(Optimizer<GRLVQOptParam> opt, GRLVQOptParam init) {
         this.opt = opt;
         this.init = init;
-        this.cf = new GRLVQCostFunction(ds);
-        this.train(ds);
-    }
-
-    public GRLVQClassifier(LabeledDataSet ds, Optimizer<GRLVQOptParam> opt) {
-        this(ds, opt, new GRLVQOptParam(ds));
-    }
-
-    public GRLVQClassifier(LabeledDataSet ds, Optimizer<GRLVQOptParam> opt, int prototypesPerClass) {
-        this(ds, opt, new GRLVQOptParam(prototypesPerClass, ds));
-    }
-
-    public GRLVQClassifier(LabeledDataSet ds, Optimizer<GRLVQOptParam> opt, int[] prototypesPerClass) {
-        this(ds, opt, new GRLVQOptParam(prototypesPerClass, ds));
     }
 
     public void setInit(GRLVQOptParam init) {
@@ -35,8 +21,14 @@ public class GRLVQClassifier implements Classifier {
     }
 
     @Override
-    public void train(LabeledDataSet ds) {
+    public GRLVQOptParam train(LabeledDataSet ds) {
+        return train(new GRLVQCostFunction(ds));
+    }
+
+    @Override
+    public GRLVQOptParam train(SeparableCostFunction<GRLVQOptParam> cf) {
         this.params = opt.optimize(cf, this.init);
+        return this.params;
     }
 
     @Override

@@ -58,4 +58,6 @@ public interface OptParam<ParamType extends OptParam<ParamType>> {
     public ParamType random(Random r);
     
     public ParamType random_s(Random r);
+    
+    public String simplifiedToString();
 }

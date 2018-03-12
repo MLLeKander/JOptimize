@@ -7,8 +7,9 @@ import java.util.Random;
 
 import nl.rug.joptimize.learn.LabeledDataSet;
 import nl.rug.joptimize.opt.AbstractOptParam;
+import nl.rug.joptimize.opt.ClassificationOptParam;
 
-public class GRLVQOptParam extends AbstractOptParam<GRLVQOptParam> {
+public class GRLVQOptParam extends AbstractOptParam<GRLVQOptParam> implements ClassificationOptParam<GRLVQOptParam> {
     public double[][] prototypes;
     public double[] weights;
     public int[] labels;
@@ -493,5 +494,39 @@ public class GRLVQOptParam extends AbstractOptParam<GRLVQOptParam> {
             sep=",";
         }
         return sb.append('}').toString();
+    }
+    
+    @Override
+    public String simplifiedToString() {
+        double pSum = 0, wSum = 0;
+        long pCount = 0, wCount = 0;
+        for (double[] row : prototypes) {
+            for (double val : row) {
+                pSum += val;
+                pCount++;
+            }
+        }
+        for (double val : weights) {
+            wSum += val;
+            wCount++;
+        }
+        return (pSum/pCount)+" "+(wSum/wCount);
+    }
+    
+    @Override
+    public int classify(double[] data) {
+        return getClosestProtoLabel(data);
+    }
+    
+    @Override
+    public double[] rocScores(LabeledDataSet ds) {
+        double[] scores = new double[ds.size()];
+        for (int i = 0; i < scores.length; i++) {
+            double[] data = ds.getData(i);
+            int protoZ = getClosestCorrectProtoNdx(data, 0);
+            int protoO = getClosestCorrectProtoNdx(data, 1);
+            scores[i] = dist(protoZ, data) - dist(protoO, data);
+        }
+        return scores;
     }
 }

@@ -8,7 +8,7 @@ import nl.rug.joptimize.opt.SeparableCostFunction;
 
 public class VSGD<ParamType extends OptParam<ParamType>> extends AbstractOptimizer<ParamType> { 
     private Random rand;
-    private ParamType gs, vs, taus, hs, ONE;
+    private ParamType gs, vs, taus, hs, ONE, learningRates;
 
     private final static double eps = 1e-10;
     private final static int C = 10;
@@ -131,7 +131,7 @@ public class VSGD<ParamType extends OptParam<ParamType>> extends AbstractOptimiz
           
           // TODO: .divide?
           
-          ParamType learningRates = gs.dotprod(gs).dotprod_s(hs.dotprod(vs).lbound_s(eps).inv_s());
+          learningRates = gs.dotprod(gs).dotprod_s(hs.dotprod(vs).lbound_s(eps).inv_s());
           outParams.sub_s(grad.dotprod(learningRates));
           
           // taus = (1 - (gs.^2)./vs).*taus + 1
@@ -149,5 +149,10 @@ public class VSGD<ParamType extends OptParam<ParamType>> extends AbstractOptimiz
       }
 
         return outParams;
+    }
+    
+    @Override
+    public String toString() {
+        return learningRates.simplifiedToString();
     }
 }

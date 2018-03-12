@@ -7,8 +7,9 @@ import java.util.Random;
 
 import nl.rug.joptimize.learn.LabeledDataSet;
 import nl.rug.joptimize.opt.AbstractOptParam;
+import nl.rug.joptimize.opt.ClassificationOptParam;
 
-public class GLVQOptParam extends AbstractOptParam<GLVQOptParam> {
+public class GLVQOptParam extends AbstractOptParam<GLVQOptParam> implements ClassificationOptParam<GLVQOptParam> {
     public double[][] prototypes;
     public int[] labels;
     public static final Random rand = new Random();
@@ -391,6 +392,48 @@ public class GLVQOptParam extends AbstractOptParam<GLVQOptParam> {
 
     @Override
     public String toString() {
-        return Arrays.deepToString(prototypes);
+        StringBuilder sb = new StringBuilder();
+        String rowSep = "";
+        for (double[] row : prototypes) {
+            sb.append(rowSep);
+            rowSep = "\n";
+            String sep = "";
+            for (double val : row) {
+                sb.append(sep);
+                sb.append(String.format("%.4f", val));
+                sep = "  ";
+            }
+        }
+        return sb.toString();
+    }
+    
+    @Override
+    public String simplifiedToString() {
+        double sum = 0;
+        long count = 0;
+        for (double[] row : prototypes) {
+            for (double val : row) {
+                sum += val;
+                count++;
+            }
+        }
+        return (sum/count) + "";
+    }
+    
+    @Override
+    public int classify(double[] data) {
+        return getClosestProtoLabel(data);
+    }
+    
+    @Override
+    public double[] rocScores(LabeledDataSet ds) {
+        double[] scores = new double[ds.size()];
+        for (int i = 0; i < scores.length; i++) {
+            double[] data = ds.getData(i);
+            int protoZ = getClosestCorrectProtoNdx(data, 0);
+            int protoO = getClosestCorrectProtoNdx(data, 1);
+            scores[i] = dist(protoZ, data) - dist(protoO, data);
+        }
+        return scores;
     }
 }

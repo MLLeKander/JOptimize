@@ -9,6 +9,7 @@ import nl.rug.joptimize.opt.SeparableCostFunction;
 public class SGD<ParamType extends OptParam<ParamType>> extends
         AbstractOptimizer<ParamType> {
     protected double learningRate;
+    protected double effectiveLearningRate;
     protected Random rand;
     protected int t = 0;
 
@@ -31,7 +32,7 @@ public class SGD<ParamType extends OptParam<ParamType>> extends
     protected ParamType sgdEpoch(SeparableCostFunction<ParamType> cf, ParamType params, double learningRate) {
         ParamType out = params.copy();
         int size = cf.size();
-        double effectiveLearningRate = learningRate / (1+ t/tMax);
+        effectiveLearningRate = learningRate / (1+ t/tMax);
         
         for (int i = 0; i < size; i++) {
             out.sub_s(cf.deriv(out, rand.nextInt(size)).multiply_s(effectiveLearningRate));

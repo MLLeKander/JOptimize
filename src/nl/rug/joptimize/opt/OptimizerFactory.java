@@ -69,7 +69,7 @@ public class OptimizerFactory {
     }
     
     public static <ParamType extends OptParam<ParamType>> WA_BGD<ParamType> createWABGD(Arguments a) {
-        return new WA_BGD<>(a.getDbl("rate"),a.getInt("hist"),a.getDbl("loss",1),a.getDbl("gain",1),a.getDbl("epsilon"),a.getInt("tmax"));
+        return new WA_BGD<>(a.getDbl("rate",1),a.getInt("hist",5),a.getDbl("loss",1.5),a.getDbl("gain",1.1),a.getDbl("epsilon"),a.getInt("tmax"));
     }
     
     public static <ParamType extends OptParam<ParamType>> Adadelta<ParamType> createAdadelta(Arguments a) {

@@ -5,7 +5,7 @@ import nl.rug.joptimize.learn.LabeledDataSet;
 import nl.rug.joptimize.opt.Optimizer;
 import nl.rug.joptimize.opt.SeparableCostFunction;
 
-public class GMLVQClassifier implements Classifier {
+public class GMLVQClassifier implements Classifier<GMLVQOptParam> {
 
     GMLVQOptParam params;
     GMLVQOptParam init;
@@ -21,12 +21,14 @@ public class GMLVQClassifier implements Classifier {
     }
 
     @Override
-    public void train(LabeledDataSet ds) {
-        train(new GMLVQCostFunction(ds));
+    public GMLVQOptParam train(LabeledDataSet ds) {
+        return train(new GMLVQCostFunction(ds));
     }
 
-    public void train(SeparableCostFunction<GMLVQOptParam> cf) {
+    @Override
+    public GMLVQOptParam train(SeparableCostFunction<GMLVQOptParam> cf) {
         this.params = opt.optimize(cf, this.init);
+        return this.params;
     }
 
     @Override

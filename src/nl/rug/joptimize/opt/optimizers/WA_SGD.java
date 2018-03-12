@@ -53,7 +53,7 @@ public class WA_SGD<ParamType extends OptParam<ParamType>> extends AbstractOptim
             if (cf.error(waypointAverage) < cf.error(outParams)) {
                 runningSum.sub_s(outParams).add_s(waypointAverage);
                 outParams = waypointAverage.copy();
-                learningRate *= loss;
+                learningRate /= loss;
             } else {
                 learningRate *= gain;
             }
@@ -61,5 +61,10 @@ public class WA_SGD<ParamType extends OptParam<ParamType>> extends AbstractOptim
         }
         hist.add(outParams.copy());
         return outParams;
+    }
+    
+    @Override
+    public String toString() {
+        return learningRate+"";
     }
 }

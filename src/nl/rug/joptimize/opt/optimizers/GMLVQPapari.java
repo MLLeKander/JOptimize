@@ -119,4 +119,9 @@ public class GMLVQPapari extends AbstractOptimizer<GMLVQOptParam> {
 
         return outParams;
     }
+    
+    @Override
+    public String toString() {
+        return protoLearningRate+" "+matrixLearningRate;
+    }
 }

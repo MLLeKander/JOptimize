@@ -8,7 +8,7 @@ import nl.rug.joptimize.opt.SeparableCostFunction;
 
 public class Adam<ParamType extends OptParam<ParamType>> extends AbstractOptimizer<ParamType> { 
     protected Random rand;
-    protected ParamType m, v;
+    protected ParamType m, v, update;
     protected int batchSize, t;
     protected double alpha, beta1, beta2, beta1Pow, beta2Pow;
 
@@ -41,7 +41,7 @@ public class Adam<ParamType extends OptParam<ParamType>> extends AbstractOptimiz
         //ParamType vHat = v.multiply(1/(1-beta2Pow));
         ParamType mHat = m.multiply(1/(1-Math.pow(beta1, t)));
         ParamType vHat = v.multiply(1/(1-Math.pow(beta2, t)));
-        ParamType update = mHat.multiply_s(alpha).dotprod_s(vHat.sqrt_s().add_s(eps).inv_s()); 
+        update = mHat.multiply_s(alpha).dotprod_s(vHat.sqrt_s().add_s(eps).inv_s()); 
         params.sub_s(update);
         beta1Pow *= beta1;
         beta2Pow *= beta2;
@@ -71,5 +71,10 @@ public class Adam<ParamType extends OptParam<ParamType>> extends AbstractOptimiz
         
         
         return outParams;
+    }
+    
+    @Override
+    public String toString() {
+        return update.simplifiedToString();
     }
 }

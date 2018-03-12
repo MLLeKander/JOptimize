@@ -50,7 +50,7 @@ public class WA_BGD<ParamType extends OptParam<ParamType>> extends
             if (cf.error(waypointAverage) < cf.error(outParams)) {
                 runningSum.sub_s(outParams).add_s(waypointAverage);
                 outParams = waypointAverage.copy();
-                learningRate *= loss;
+                learningRate /= loss;
             } else {
                 learningRate *= gain;
             }
@@ -58,5 +58,10 @@ public class WA_BGD<ParamType extends OptParam<ParamType>> extends
         }
         hist.add(outParams.copy());
         return outParams;
+    }
+    
+    @Override
+    public String toString() {
+        return learningRate+"";
     }
 }

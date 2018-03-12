@@ -123,4 +123,9 @@ public class SingleVarOptParam extends AbstractOptParam<SingleVarOptParam> {
     public double get(int dim) {
         return x;
     }
+
+    @Override
+    public String simplifiedToString() {
+        return x+"";
+    }
 }

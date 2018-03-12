@@ -99,7 +99,7 @@ public class GLVQ_1 {
                 }
             }
         }
-        GLVQClassifier lvq = new GLVQClassifier(ds, opt, p);
+        GLVQClassifier lvq = new GLVQClassifier(opt, p);
         SeparableCostFunction<GLVQOptParam> cf = new GLVQCostFunction(ds);
         if (args.getBool("sigmoid",false)) {
             cf = new SigmoidCostFunction<>(cf, args.getDbl("sigmoidAlpha",5));

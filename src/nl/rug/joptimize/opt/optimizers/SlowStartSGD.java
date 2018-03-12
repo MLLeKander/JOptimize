@@ -37,4 +37,9 @@ public class SlowStartSGD<ParamType extends OptParam<ParamType>> extends SGD<Par
         }
         this.learningRate = minLearningRate;
     }
+    
+    @Override
+    public String toString() {
+        return this.effectiveLearningRate+"";
+    }
 }
