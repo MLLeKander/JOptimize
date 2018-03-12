@@ -6,6 +6,7 @@ import nl.rug.joptimize.opt.optimizers.Adam;
 import nl.rug.joptimize.opt.optimizers.BGD;
 import nl.rug.joptimize.opt.optimizers.ControlledBGD;
 import nl.rug.joptimize.opt.optimizers.ControlledSGD;
+import nl.rug.joptimize.opt.optimizers.RMSprop;
 import nl.rug.joptimize.opt.optimizers.Rprop;
 import nl.rug.joptimize.opt.optimizers.SGD;
 import nl.rug.joptimize.opt.optimizers.SlowStartSGD;
@@ -48,6 +49,8 @@ public class OptimizerFactory {
             return createAdamBatch(args);
         } else if (name.equals("RPROP")) {
             return createRprop(args);
+        } else if (name.equals("RMSPROP")) {
+            return createRMSprop(args);
         }
         throw new IllegalArgumentException("Unknown optimizer: "+name);
     }
@@ -90,6 +93,10 @@ public class OptimizerFactory {
     
     public static <ParamType extends OptParam<ParamType>> Rprop<ParamType> createRprop(Arguments a) {
         return new Rprop<>(a.getDbl("initDelta",0.1),a.getDbl("maxDelta",50),a.getDbl("minDelta",1e-6),a.getDbl("loss",0.5),a.getDbl("gain",1.2),a.getDbl("epsilon",-1),a.getInt("tmax",200),a.getLong("nsmax",-1));
+    }
+    
+    public static <ParamType extends OptParam<ParamType>> RMSprop<ParamType> createRMSprop(Arguments a) {
+        return new RMSprop<>(a.getLong("seed"),a.getInt("batchSize",1),a.getDbl("rate",0.001),a.getDbl("rho",0.9),a.getDbl("epsilon",-1),a.getInt("tmax",200),a.getLong("nsmax",-1));
     }
     
     public static <ParamType extends OptParam<ParamType>> SlowStartSGD<ParamType> createSlowStartSGD(Arguments a) {

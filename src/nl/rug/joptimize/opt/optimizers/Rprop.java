@@ -22,6 +22,7 @@ public class Rprop<ParamType extends OptParam<ParamType>> extends AbstractOptimi
     
     @Override
     public void init(SeparableCostFunction<ParamType> cf, ParamType initParams) {
+        super.init(cf, initParams);
         prevGrad = initParams.zero();
         delta = initParams.one().multiply_s(initDelta);
     }
