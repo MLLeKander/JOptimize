@@ -3,6 +3,7 @@ package nl.rug.joptimize.learn.glvq;
 import nl.rug.joptimize.learn.Classifier;
 import nl.rug.joptimize.learn.LabeledDataSet;
 import nl.rug.joptimize.opt.Optimizer;
+import nl.rug.joptimize.opt.SeparableCostFunction;
 
 public class GLVQClassifier implements Classifier {
 
@@ -14,7 +15,7 @@ public class GLVQClassifier implements Classifier {
     public GLVQClassifier(LabeledDataSet ds, Optimizer<GLVQOptParam> opt, GLVQOptParam init) {
         this.opt = opt;
         this.init = init;
-        cf = new GLVQCostFunction(ds);
+        this.cf = new GLVQCostFunction(ds);
         this.train(ds);
     }
 
@@ -36,7 +37,11 @@ public class GLVQClassifier implements Classifier {
 
     @Override
     public void train(LabeledDataSet ds) {
-        this.params = opt.optimize(new GLVQCostFunction(ds), this.init);
+        train(new GLVQCostFunction(ds));
+    }
+    
+    public void train(SeparableCostFunction<GLVQOptParam> cf) {
+        this.params = opt.optimize(cf, this.init);
     }
 
     @Override

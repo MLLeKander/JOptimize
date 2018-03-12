@@ -104,9 +104,9 @@ public class Arguments {
     public String toString() {
     	String argStr = argMap.toString().replaceAll("[{},]","").replaceAll("="," ");
     	if (hasDefault()) {
-    		return argStr;
-    	} else {
     		return getDefault()+" "+argStr;
+    	} else {
+    		return argStr;
     	}
     }
 }

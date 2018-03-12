@@ -2,57 +2,53 @@
 
 package nl.rug.joptimize.learn.glvq;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Random;
 
 import nl.rug.joptimize.learn.LabeledDataSet;
 import nl.rug.joptimize.opt.AbstractOptParam;
 
 public class GLVQOptParam extends AbstractOptParam<GLVQOptParam> {
-    double[][] prototypes;
-    int[] labels;
-    // TODO Holy shit this is bad.
-    static ArrayList<Integer> cMemo = new ArrayList<Integer>();
-    static ArrayList<Integer> iMemo = new ArrayList<Integer>();
+    public double[][] prototypes;
+    public int[] labels;
+    public static final Random rand = new Random();
 
-    public GLVQOptParam(double[][] prototypes, int[] labels, int dsSize) {
+
+    public GLVQOptParam(double[][] prototypes, int[] labels) {
         this.prototypes = prototypes;
         this.labels = labels;
-        initMemos(dsSize);
     }
 
-    public GLVQOptParam(int classes, int dimensions, int datasetSize) {
+    public GLVQOptParam(int classes, int dimensions) {
         int[] ppc = new int[classes];
         Arrays.fill(ppc, 1);
-        init(ppc, dimensions, datasetSize);
+        init(ppc, dimensions);
     }
 
     public GLVQOptParam(LabeledDataSet ds) {
-        this(ds.classes(), ds.dimensions(), ds.size());
+        this(ds.averageProtos(), ds.labels());
     }
 
-    public GLVQOptParam(int prototypesPerClass, int classes, int dimensions, int dsSize) {
+    public GLVQOptParam(int prototypesPerClass, int classes, int dimensions) {
         int[] ppc = new int[classes];
         Arrays.fill(ppc, prototypesPerClass);
-        init(ppc, dimensions, dsSize);
+        init(ppc, dimensions);
     }
 
     public GLVQOptParam(int prototypesPerClass, LabeledDataSet ds) {
-        this(prototypesPerClass, ds.classes(), ds.dimensions(), ds.size());
+        this(prototypesPerClass, ds.classes(), ds.dimensions());
     }
 
-    public GLVQOptParam(int[] prototypesPerClass, int dimensions, int dsSize) {
-        init(prototypesPerClass, dimensions, dsSize);
+    public GLVQOptParam(int[] prototypesPerClass, int dimensions) {
+        init(prototypesPerClass, dimensions);
     }
 
     public GLVQOptParam(int[] prototypesPerClass, LabeledDataSet ds) {
-        this(prototypesPerClass, ds.dimensions(), ds.size());
+        this(prototypesPerClass, ds.dimensions());
         assert (ds.classes() == prototypesPerClass.length);
     }
 
-    private void init(int[] ppc, int dimensions, int dsSize) {
+    private void init(int[] ppc, int dimensions) {
         int protoCount = 0;
         for (int i : ppc) {
             protoCount += i;
@@ -61,7 +57,7 @@ public class GLVQOptParam extends AbstractOptParam<GLVQOptParam> {
         this.prototypes = new double[protoCount][dimensions];
         for (double[] row : prototypes) {
             for (int i = 0; i < row.length; i++) {
-                row[i] += (Math.random()-0.5)/100;
+                row[i] += (rand.nextDouble() - 0.5) / 100;
             }
         }
         
@@ -70,16 +66,6 @@ public class GLVQOptParam extends AbstractOptParam<GLVQOptParam> {
             for (int j = 0; j < ppc[i]; j++) {
                 this.labels[ndx++] = i;
             }
-        }
-        
-        initMemos(dsSize);
-    }
-
-    private void initMemos(int dsSize) {
-        // TODO BAD
-        if (cMemo.size() != dsSize) {
-            cMemo = new ArrayList<Integer>(Collections.nCopies(dsSize, -1));
-            iMemo = new ArrayList<Integer>(Collections.nCopies(dsSize, -1));
         }
     }
 
@@ -135,20 +121,19 @@ public class GLVQOptParam extends AbstractOptParam<GLVQOptParam> {
         //System.err.println(Arrays.toString(this.prototypes[0]));
         assert (data.length == this.prototypes[0].length);
         int protos = this.numProtos();
-        int minNdx = cMemo.get(exNdx), minProto = minNdx;
-        double minDist = minNdx == -1 ? Double.MAX_VALUE : dist(minNdx, data);
+        int minNdx = -1;
+        double minDist = Double.MAX_VALUE;
         for (int i = 0; i < protos; i++) {
-            if (labels[i] != label || i == minProto) {
+            if (labels[i] != label) {
                 continue;
             }
 
-            double currDist = dist(i, data);//, minDist);
+            double currDist = dist(i, data);
             if (currDist < minDist) {
                 minNdx = i;
                 minDist = currDist;
             }
         }
-        cMemo.set(exNdx, minNdx);
         return minNdx;
     }
 
@@ -178,20 +163,19 @@ public class GLVQOptParam extends AbstractOptParam<GLVQOptParam> {
     public int getClosestIncorrectProtoNdx(double[] data, int label, int exNdx) {
         assert (data.length == this.prototypes[0].length);
         int protos = this.numProtos();
-        int minNdx = iMemo.get(exNdx), minProto = minNdx;
-        double minDist = minNdx == -1 ? Double.MAX_VALUE : dist(minNdx, data);
+        int minNdx = -1;
+        double minDist = Double.MAX_VALUE;
         for (int i = 0; i < protos; i++) {
-            if (labels[i] == label || i == minProto) {
+            if (labels[i] == label) {
                 continue;
             }
 
-            double currDist = dist(i, data, minDist);
+            double currDist = dist(i, data);
             if (currDist < minDist) {
                 minNdx = i;
                 minDist = currDist;
             }
         }
-        iMemo.set(exNdx, minNdx);
         return minNdx;
     }
 
@@ -376,7 +360,7 @@ public class GLVQOptParam extends AbstractOptParam<GLVQOptParam> {
         for (int i = 0; i < newProtos.length; i++) {
             System.arraycopy(this.prototypes[i], 0, newProtos[i], 0, dims);
         }
-        return new GLVQOptParam(newProtos, this.labels, cMemo.size());
+        return new GLVQOptParam(newProtos, this.labels);
     }
 
     @Override
@@ -401,19 +385,6 @@ public class GLVQOptParam extends AbstractOptParam<GLVQOptParam> {
         for (int i = 0; i < data.length; i++) {
             double tmp = proto[i] - data[i];
             out += tmp * tmp;
-        }
-        return out;
-    }
-
-    private double dist(int ndx, double[] data, double minDist) {
-        double[] proto = this.prototypes[ndx];
-        double out = 0;
-        for (int i = 0; i < data.length; i++) {
-            double tmp = proto[i] - data[i];
-            out += tmp * tmp;
-            if (out > minDist) {
-                break;
-            }
         }
         return out;
     }
