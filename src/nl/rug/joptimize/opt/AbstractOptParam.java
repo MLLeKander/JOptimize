@@ -2,9 +2,7 @@ package nl.rug.joptimize.opt;
 
 import java.util.Random;
 
-import nl.rug.joptimize.learn.Vectorlike;
-
-public abstract class AbstractOptParam<ParamType extends OptParam<ParamType>> implements OptParam<ParamType>, Vectorlike {
+public abstract class AbstractOptParam<ParamType extends OptParam<ParamType>> implements OptParam<ParamType> {
     @Override
 	public ParamType add(ParamType o) { return this.copy().add_s(o); }
 
