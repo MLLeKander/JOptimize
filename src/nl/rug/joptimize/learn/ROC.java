@@ -15,7 +15,7 @@ public class ROC {
         }
         
         public String toString() {
-            return this.tpr+" "+this.fpr;
+            return String.format("(%.3f,%.3f)",this.tpr,this.fpr);
         }
     }
     

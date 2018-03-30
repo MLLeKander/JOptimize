@@ -8,9 +8,12 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import nl.rug.joptimize.Arguments;
 import nl.rug.joptimize.learn.LabeledDataSet;
+import nl.rug.joptimize.learn.ROC;
+import nl.rug.joptimize.learn.ROC.ROCPoint;
 import nl.rug.joptimize.learn.SplitLabeledDataSet;
 import nl.rug.joptimize.learn.gmlvq.GMLVQOptParam;
 
@@ -71,14 +74,15 @@ public class GMLVQ_ROC_1 {
         GMLVQOptParam param = readTrained(trainedReader);
         trainedReader.close();
         
-        LabeledDataSet dsTmp = LabeledDataSet.parseDataFile(new File(args.getDefault()));
+        LabeledDataSet ds = LabeledDataSet.parseDataFile(new File(args.getDefault()));
         if (args.getBool("zscore", false)) {
-            dsTmp = dsTmp.zscore();
+            ds = ds.zscore();
         }
-        SplitLabeledDataSet split = dsTmp.split(args.getInt("split"),args.getLong("splitSeed"));
+        SplitLabeledDataSet split = ds.split(args.getInt("split"),args.getLong("splitSeed"));
         LabeledDataSet dsTest = split.b;
         
-        ROC_Score[] scores = new ROC_Score[dsTest.size()];
+        
+        /*ROC_Score[] scores = new ROC_Score[dsTest.size()];
         int Z = 0, O = 0; // P and N from Fawcett (‎2006)
         
         for (int i = 0; i < scores.length; i++) {
@@ -92,12 +96,36 @@ public class GMLVQ_ROC_1 {
             } else {
                 O++;
             }
-        }
+        }*/
         
+        List<ROCPoint> points = ROC.rocPoints(param, dsTest);
+        System.out.println("AUC = "+ROC.auc(points));
+        System.out.println("points = np.array("+points+")");
+        String sep = "scores = np.array([";
+        for (double d : param.rocScores(dsTest)) {
+            System.out.printf("%s%.3f", sep, d);
+            sep = ",";
+        }
+        System.out.println("])");
+        
+        sep = "labels = np.array([";
+        for (int i = 0; i < dsTest.size(); i++) {
+            System.out.print(sep+dsTest.getLabel(i));
+            sep = ",";
+        }
+        System.out.println("])");
+        
+        sep = "preds = np.array([";
+        for (int i = 0; i < dsTest.size(); i++) {
+            System.out.print(sep+param.classify(dsTest.getData(i)));
+            sep = ",";
+        }
+        System.out.println("])");
+        /*
         Arrays.sort(scores);
         
         // Only create file when we actually use it.
-        PrintStream rocFile = new PrintStream(new File(outDir, "roc.txt"));
+        PrintStream rocFile = new PrintStream(new File(outDir, "rocCurve.txt"));
         
         double prevScore = Double.NEGATIVE_INFINITY;
         int FZ = 0, TZ = 0; // FP and TP from Fawcett (2006)
@@ -117,5 +145,6 @@ public class GMLVQ_ROC_1 {
         }
         
         rocFile.close();
+        */
     }
 }
