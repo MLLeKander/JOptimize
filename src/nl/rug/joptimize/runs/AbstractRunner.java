@@ -87,6 +87,10 @@ public abstract class AbstractRunner<ParamType extends ClassificationOptParam<Pa
             ds = split.a;
             dsTest = split.b;
         }
+        
+        if (args.hasArg("oversampleSeed")) {
+            ds = ds.oversample(args.getLong("oversampleSeed"));
+        }
     }
     
     public void openFiles() throws IOException {

@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.TreeSet;
 
@@ -227,5 +228,46 @@ public class LabeledDataSet {
         System.arraycopy(labels, aSize, labelsB, 0, size-aSize);
 
         return new SplitLabeledDataSet(new LabeledDataSet(dataA, labelsA), new LabeledDataSet(dataB, labelsB));
+    }
+
+    public LabeledDataSet oversample(long randSeed) {
+        Random rand = new Random(randSeed);
+
+        ArrayList<ArrayList<Integer>> ndxes = new ArrayList<>(classes());
+        for (int i = 0; i < this.classes(); i++) {
+            ndxes.add(new ArrayList<Integer>());
+        }
+        for (int i = 0; i < size(); i++) {
+            ndxes.get(getLabel(i)).add(i);
+        }
+        
+        int maxLen = 0;
+        for (ArrayList<Integer> lst : ndxes) {
+            maxLen = Math.max(maxLen, lst.size());
+        }
+        int newSize = maxLen * classes();
+        
+        double[][] newData = new double[newSize][dimensions()];
+        int[] newLabels = new int[newSize];
+        for (int i = 0; i < size(); i++) {
+            System.arraycopy(data[i], 0, newData[i], 0, dimensions());
+        }
+        System.arraycopy(labels, 0, newLabels, 0, size());
+
+        int nextNdx = size();
+        for (ArrayList<Integer> lst : ndxes) {
+            for (int i = lst.size(); i < maxLen; i++) {
+                int sampleNdx = lst.get(rand.nextInt(lst.size()));
+                System.arraycopy(getData(sampleNdx), 0, newData[nextNdx], 0, dimensions());
+                newLabels[nextNdx] = getLabel(sampleNdx);
+                nextNdx++;
+            }
+        }
+        if (nextNdx == newSize) {
+            throw new RuntimeException("nextNdx different from newSize?");
+        }
+        System.err.println(newSize);
+        assert(nextNdx != newSize);
+        return new LabeledDataSet(newData, newLabels);
     }
 }

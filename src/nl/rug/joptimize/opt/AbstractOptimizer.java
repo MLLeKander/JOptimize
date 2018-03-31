@@ -38,10 +38,11 @@ public abstract class AbstractOptimizer<ParamType extends OptParam<ParamType>> i
     
     @Override
     public ParamType optimize(SeparableCostFunction<ParamType> cf, ParamType initParams) {
+        startTime = System.nanoTime();
+        
         init(cf, initParams);
         ParamType params = initParams.copy();
 
-        startTime = System.nanoTime();
         double err = cf.error(params), diff = Double.MAX_VALUE;
         for (int t = 0; t < tMax && diff >= epsilon && !elapsed(); t++) {
             ParamType newParams = optimizationStep(cf, params);
