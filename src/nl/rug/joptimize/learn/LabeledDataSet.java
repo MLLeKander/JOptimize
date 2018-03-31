@@ -263,10 +263,6 @@ public class LabeledDataSet {
                 nextNdx++;
             }
         }
-        if (nextNdx == newSize) {
-            throw new RuntimeException("nextNdx different from newSize?");
-        }
-        System.err.println(newSize);
         assert(nextNdx != newSize);
         return new LabeledDataSet(newData, newLabels);
     }
